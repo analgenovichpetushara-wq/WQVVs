@@ -1,0 +1,78 @@
+apply plugin: 'com.android.application'
+
+android {
+    // P3WIN: namespace stays com.winlator for Phase 0 so that the native layer
+    // (hardcoded /data/data/com.winlator/... in rootfs + JNI) and the verified
+    // upstream APK stay byte-compatible. The applicationId is what identifies
+    // P3WIN to Android; the package rename is a separate, scripted migration.
+    namespace 'com.winlator'
+    compileSdk 35
+
+    defaultConfig {
+        // PHASE 0: applicationId deliberately stays com.winlator.
+        // Reason: the Wine rootfs, ld.so.cache, fontconfig and the JNI macros
+        // (winlator.h / vortek.h / gladio.h) contain absolute
+        // /data/data/com.winlator/... paths. Flipping the id without migrating
+        // those first produces a container that cannot start. The rename is a
+        // scripted Phase 1 task (see docs/00_PHASE0_BASELINE.md).
+        applicationId 'com.winlator'
+        minSdkVersion 26
+        // targetSdk is pinned to 28 by the Winlator core (wide external-storage
+        // access + foreground service behaviour). Raising it is part of the
+        // Phase 1 storage-strategy work, not of the Phase 0 smoke build.
+        targetSdkVersion 28
+        versionCode 1
+        versionName "0.1.0-phase0"
+    }
+
+    buildTypes {
+        debug {
+            // Keep R8 OFF for the Phase 0 smoke build: it makes the first
+            // failure logs readable and removes one variable from the equation.
+            // Release keeps R8 + the upstream keep rules.
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    // AGP 8: `lintOptions` is the legacy DSL alias.
+    lint {
+        checkReleaseBuilds false
+        // Phase 0 builds the debug variant only; the release path is wired in
+        // Phase 1 together with the signing config.
+        abortOnError false
+    }
+
+    // Pinned by upstream Winlator 11.2. Do not bump before the base APK is green:
+    // the 6 native modules are C99-heavy and were validated against r24.
+    ndkVersion '24.0.8215888'
+
+    packaging {
+        // The core extracts native libs from the APK at first launch
+        // (android:extractNativeLibs="true" in the manifest) so that Wine can
+        // dlopen them directly from the app's lib dir.
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            version '3.22.1'
+            path 'src/main/cpp/CMakeLists.txt'
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'androidx.preference:preference:1.2.1'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'com.github.luben:zstd-jni:1.5.2-3@aar'
+    implementation 'org.tukaani:xz:1.7'
+    implementation 'org.apache.commons:commons-compress:1.20'
+    implementation 'androidx.lifecycle:lifecycle-process:2.5.1'
+}

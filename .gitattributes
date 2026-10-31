@@ -1,0 +1,23 @@
+# P3WIN — line ending policy (Windows-first development)
+* text=auto eol=lf
+
+# Windows batch files MUST stay CRLF, otherwise cmd.exe misparses labels.
+*.bat           text eol=crlf
+*.cmd           text eol=crlf
+*.ps1           text eol=crlf
+
+# Unix entry points stay LF (Git Bash / WSL / CI).
+*.sh            text eol=lf
+gradlew         text eol=lf
+
+# Vendor binaries: never touch, never diff.
+*.tzst          binary
+*.sf2           binary
+*.so            binary
+*.jar           binary
+*.png           binary
+*.icp           text
+
+# Language statistics: keep the repo honest about being a C/Java project.
+*.tzst          linguist-vendored
+core/**         linguist-vendored

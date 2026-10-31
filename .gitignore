@@ -1,0 +1,32 @@
+# Phases 0-1 build output
+.gradle/
+build/
+app/build/
+app/.cxx/
+.cxx/
+.externalNativeBuild/
+captures/
+
+# IDE / OS
+.idea/
+*.iml
+.local/
+.DS_Store
+Thumbs.db
+
+# Local machine configuration (SDK path, signing, secrets) — NEVER commit
+local.properties
+*.jks
+*.keystore
+keystore.properties
+.env
+.env.*
+
+# Scratch space used by the build helper scripts
+/.cache/
+/.tmp/
+/bootstrap/
+
+# Python byte-code that sneaks in with vendored Mesa sources
+__pycache__/
+*.pyc

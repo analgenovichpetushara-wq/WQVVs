@@ -1,6 +1,7 @@
 package com.p3win.core.integration;
 
 import android.content.Context;
+import android.os.Looper;
 
 import com.p3win.core.log.P3Log;
 import com.p3win.core.profile.ContainerProfile;
@@ -122,6 +123,51 @@ public final class CoreContainerLink {
     // ------------------------------------------------------------------
 
     /**
+     * Подождать асинхронный колбэк ядра, не рискуя заморозить интерфейс.
+     *
+     * <h3>В чём была проблема</h3>
+     * {@code ContainerManager.createContainerAsync} и его братья вызывают
+     * колбэк через {@code Handler.post} на <b>главный</b> лупер. Если ждать
+     * их через {@code Object.wait()} в UI-потоке, колбэк никогда не выполнится:
+     * главный поток стоит в ожидании самого себя — классический дедлок,
+     * который на устройстве выглядит как «приложение зависло».
+     *
+     * <p>Решение: перед ожиданием проверяем поток. На главном потоке не ждём
+     * вовсе и возвращаем false — вызывающая сторона обязана работать в фоне
+     * ({@code P3Fragment.async} / {@code TaskRunner}). Это честнее таймаута:
+     * таймаут вернул бы «не удалось» через 60 секунд, повесив интерфейс.
+     *
+     * @param lock   объект-монитор
+     * @param done   флаг завершения (читается под тем же монитором)
+     * @param caller описание операции для журнала
+     */
+    private boolean awaitCore(Object lock, boolean[] done, String caller) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            P3Log.error(TAG, caller + ": вызов из UI-потока заблокировал бы колбэк ядра. "
+                    + "Операцию нужно выполнять в фоновом потоке.");
+            return false;
+        }
+
+        long deadline = System.currentTimeMillis() + CREATE_TIMEOUT_MS;
+        synchronized (lock) {
+            while (!done[0]) {
+                long remaining = deadline - System.currentTimeMillis();
+                if (remaining <= 0) {
+                    P3Log.warn(TAG, caller + ": ядро не ответило за " + CREATE_TIMEOUT_MS + " мс");
+                    return false;
+                }
+                try {
+                    lock.wait(remaining);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * Создать контейнер через ядро и дождаться результата.
      * <p>Ядро само распаковывает pattern контейнера и wineprefix, поэтому
      * операция занимает десятки секунд — только фоновый поток.
@@ -130,20 +176,18 @@ public final class CoreContainerLink {
         final com.winlator.container.Container[] holder = new com.winlator.container.Container[1];
         final Object lock = new Object();
 
+        final boolean[] finished = {false};
         coreManager.createContainerAsync(creationData, container -> {
             synchronized (lock) {
                 holder[0] = container;
+                finished[0] = true;
                 lock.notifyAll();
             }
         });
 
-        synchronized (lock) {
-            try {
-                lock.wait(CREATE_TIMEOUT_MS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
+        // Ожидание с флагом, а не «проснулись — значит готово»: колбэк ядра
+        // может прийти null при ошибке, и тогда старый код просто ждал таймаут.
+        if (!awaitCore(lock, finished, "create")) return null;
 
         if (holder[0] != null) {
             P3Database database = P3Database.get(context);
@@ -175,15 +219,9 @@ public final class CoreContainerLink {
             }
         });
 
-        synchronized (lock) {
-            try {
-                lock.wait(CREATE_TIMEOUT_MS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-        if (done[0]) sync();
-        return done[0];
+        if (!awaitCore(lock, done, "duplicate")) return false;
+        sync();
+        return true;
     }
 
     /** Удалить контейнер (ядро чистит каталог в rootfs). */
@@ -199,18 +237,10 @@ public final class CoreContainerLink {
             }
         });
 
-        synchronized (lock) {
-            try {
-                lock.wait(CREATE_TIMEOUT_MS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-        if (done[0]) {
-            P3Database database = P3Database.get(context);
-            if (database != null) database.containerDao().delete(core.id);
-        }
-        return done[0];
+        if (!awaitCore(lock, done, "remove")) return false;
+        P3Database database = P3Database.get(context);
+        if (database != null) database.containerDao().delete(core.id);
+        return true;
     }
 
     // ------------------------------------------------------------------

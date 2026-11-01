@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 
 import androidx.appcompat.app.AlertDialog;
 
-import com.p3win.P3Application;
 import com.winlator.R;
 import com.p3win.data.TaskRunner;
 

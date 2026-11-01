@@ -37,6 +37,15 @@ public final class GameLauncher {
 
     private static final String TAG = "Launch";
 
+    /**
+     * Начало сообщения «система не установлена».
+     *
+     * <p>Живёт в core, а не в UI: это часть контракта запуска. Экран оболочки
+     * сравнивает начало строки с этой константой и уводит пользователя в
+     * мастер настройки. Так текст ошибки и её обработка не разъезжаются.
+     */
+    public static final String ERR_NEED_SETUP = "Сначала установите систему";
+
     private GameLauncher() {
     }
 
@@ -47,6 +56,12 @@ public final class GameLauncher {
      */
     public static String launch(Context context, Game game, GameProfile profile) {
         if (context == null || game == null) return "Нет данных об игре";
+
+        // Rootfs — обязательное условие: без него запуск контейнера упрётся в
+        // отсутствующий Wine, а пользователь увидит чёрный экран вместо причины.
+        if (!new com.p3win.core.integration.CoreContainerLink(context).isSystemReady()) {
+            return ERR_NEED_SETUP + ": открывается экран настройки";
+        }
 
         ContainerManager manager = new ContainerManager(context);
         Container container = manager.getContainerById((int) game.containerId);
@@ -89,6 +104,9 @@ public final class GameLauncher {
     /** Запустить контейнер без игры — рабочий стол Wine. */
     public static String launchContainer(Context context, int containerId) {
         if (context == null) return "Нет контекста";
+        if (!new com.p3win.core.integration.CoreContainerLink(context).isSystemReady()) {
+            return ERR_NEED_SETUP + ": открывается экран настройки";
+        }
         ContainerManager manager = new ContainerManager(context);
         Container container = manager.getContainerById(containerId);
         if (container == null) return "Контейнер не найден";

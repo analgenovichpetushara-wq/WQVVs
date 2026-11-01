@@ -7,7 +7,6 @@ import android.widget.TextView;
 
 import com.p3win.core.log.GameLogCapture;
 import com.p3win.core.log.P3Log;
-import com.p3win.core.prefs.P3Prefs;
 import com.winlator.R;
 
 import java.io.File;

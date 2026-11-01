@@ -637,6 +637,34 @@ def check_unused_p3_drawables():
     print(f"[res] неиспользуемых p3 drawable: {len(unused)}")
 
 
+# --- 5g. Неиспользуемые импорты -------------------------------------------
+def check_unused_imports():
+    """
+    Импорт без использования — не ошибка компиляции, но он вводит в
+    заблуждение при чтении и мешает заметить настоящую зависимость файла.
+    Проверяются только импорты com.p3win.* и com.winlator.*: импорты из
+    Android SDK часто «используются» только в javadoc.
+    """
+    total = 0
+    for dp, _, fs in os.walk(P3_ROOT):
+        for f in fs:
+            if not f.endswith(".java"):
+                continue
+            p = os.path.join(dp, f)
+            raw = open(p, encoding="utf-8").read()
+            code = strip_comments(raw)
+            for match in re.finditer(r"^import\s+((?:com\.p3win|com\.winlator)\.[\w.]+);", raw, re.M):
+                fqcn = match.group(1)
+                simple = fqcn.split(".")[-1]
+                # имя используется, если встречается вне строки импорта
+                body = code.replace(match.group(0), "")
+                if re.search(r"\b" + re.escape(simple) + r"\b", body):
+                    continue
+                total += 1
+                warn(f"IMPORT {rel(p)}: не используется {fqcn}")
+    print(f"[imports] неиспользуемых P3/ядро импортов: {total}")
+
+
 def main():
     check_syntax()
     check_imports()
@@ -651,6 +679,7 @@ def main():
     check_p3_arity()
     check_resource_refs()
     check_unused_p3_drawables()
+    check_unused_imports()
     print()
     if warnings:
         print(f"ПРЕДУПРЕЖДЕНИЯ ({len(warnings)}):")

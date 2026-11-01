@@ -11,7 +11,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.p3win.P3Application;
 import com.winlator.R;
 import com.p3win.core.integration.CoreContainerLink;
 import com.p3win.core.profile.ContainerProfiles;

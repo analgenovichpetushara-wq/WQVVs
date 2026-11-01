@@ -23,9 +23,7 @@ import com.p3win.data.dao.GameDao;
 import com.p3win.data.entity.Game;
 import com.p3win.data.entity.GameProfile;
 import com.p3win.ui.shell.P3Fragment;
-import com.p3win.ui.shell.P3ShellActivity;
 import com.p3win.ui.widget.GamePosterAdapter;
-import com.p3win.ui.widget.P3Toast;
 
 import java.io.File;
 import java.util.List;
@@ -182,7 +180,7 @@ public class LibraryFragment extends P3Fragment implements GamePosterAdapter.Lis
             if (error == null) app.repository().games().touch(game.id);
             return error;
         }, error -> {
-            if (error != null) P3Toast.show(getContext(), error);
+            if (error != null) showLaunchError(error);
         });
     }
 

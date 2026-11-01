@@ -8,7 +8,6 @@ import android.widget.TextView;
 
 import com.winlator.R;
 import com.p3win.data.TaskRunner;
-import com.p3win.data.entity.InputLayout;
 import com.p3win.ui.widget.P3Toast;
 
 import java.io.File;

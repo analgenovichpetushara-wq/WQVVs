@@ -10,7 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.p3win.P3Application;
 import com.winlator.R;
 import com.p3win.core.prefs.P3Prefs;
 import com.p3win.ui.engine.EngineFragment;

@@ -18,7 +18,6 @@ import com.p3win.P3Application;
 import com.winlator.R;
 import com.p3win.core.launch.GameLauncher;
 import com.p3win.core.paths.AppPaths;
-import com.p3win.core.prefs.P3Prefs;
 import com.p3win.data.entity.Game;
 import com.p3win.data.entity.GameProfile;
 import com.p3win.data.entity.Milestone;
@@ -28,7 +27,6 @@ import com.p3win.ui.shell.SetupFragment;
 import com.p3win.ui.shell.P3ShellActivity;
 import com.p3win.ui.widget.GameRowAdapter;
 import com.p3win.ui.widget.P3ImageLoader;
-import com.p3win.ui.widget.P3Toast;
 import com.p3win.util.P3Format;
 
 import java.io.File;
@@ -214,7 +212,7 @@ public class HomeFragment extends P3Fragment implements GameRowAdapter.Listener 
             if (error == null) app.repository().games().touch(game.id);
             return error;
         }, error -> {
-            if (error != null) P3Toast.show(getContext(), error);
+            if (error != null) showLaunchError(error);
         });
     }
 
@@ -231,7 +229,7 @@ public class HomeFragment extends P3Fragment implements GameRowAdapter.Listener 
             if (error == null) app.repository().games().touch(game.id);
             return error;
         }, error -> {
-            if (error != null) P3Toast.show(getContext(), error);
+            if (error != null) showLaunchError(error);
         });
     }
 

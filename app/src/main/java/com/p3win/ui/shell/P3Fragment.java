@@ -46,6 +46,23 @@ public abstract class P3Fragment extends Fragment {
         TaskRunner.runVoid(runnable);
     }
 
+    /**
+     * Показать ошибку запуска так, чтобы у пользователя был следующий шаг.
+     *
+     * <p>Ошибка «сначала установите систему» не должна оставаться тостом:
+     * тост исчезает через две секунды, а сделать что-то нужно. Поэтому такой
+     * случай ведёт в мастер настройки, остальные остаются тостом — они либо
+     * про конкретную игру, либо про контейнер, и лечатся в своём экране.
+     */
+    protected void showLaunchError(String error) {
+        if (error == null || error.isEmpty()) return;
+        if (error.startsWith(com.p3win.core.launch.GameLauncher.ERR_NEED_SETUP)) {
+            if (isAdded()) P3Navigator.push(requireActivity(), new SetupFragment());
+            return;
+        }
+        com.p3win.ui.widget.P3Toast.show(getContext(), error);
+    }
+
     /** Прокрутить текущий экран наверх (повторное нажатие на активную вкладку). */
     public void scrollToTop() {
         // По умолчанию поведение отсутствует; экраны со списками переопределяют.

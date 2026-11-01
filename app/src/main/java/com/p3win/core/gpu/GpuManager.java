@@ -104,12 +104,17 @@ public final class GpuManager {
     public String install(GraphicsDriver driver) {
         if (driver == null) return "Драйвер не выбран";
 
+        // Тип компонента зависит от драйвера: Turnip — TURNIP, Gladio — AdrenoTools.
+        // Проверять всё как Turnip нельзя: у Gladio другая папка и другое имя,
+        // из-за чего «установка» проходила без реального файла.
+        GeneralComponents.Type type = DriverCatalog.componentType(driver);
         File archive = DriverCatalog.archiveFile(context, driver);
-        boolean builtin = GeneralComponents.isBuiltinComponent(
-                GeneralComponents.Type.TURNIP, driver.version);
+        boolean builtin = GeneralComponents.isBuiltinComponent(type, driver.version);
 
         if (!builtin && (archive == null || !archive.isFile())) {
             return "Архив драйвера не найден: " + driver.displayName
+                    + " (ожидался " + DriverCatalog.archiveName(driver)
+                    + " в " + type.name().toLowerCase(java.util.Locale.US) + ")"
                     + ". Установите его в настройках ядра.";
         }
 
@@ -201,7 +206,16 @@ public final class GpuManager {
     // Снимок и откат
     // ------------------------------------------------------------------
 
-    /** Сохранить текущее состояние контейнера перед изменениями. */
+    /**
+     * Сохранить текущее состояние контейнера перед изменениями.
+     *
+     * <p>Снимок пишется в <b>два</b> файла: персональный
+     * {@code graphics-snapshot-<id>.txt} и «последний» {@code graphics-snapshot.txt}.
+     * Причина — прежний дефект: единственный общий файл перезаписывался при
+     * каждой активации, поэтому откат контейнера A мог восстановить настройки
+     * контейнера B. Теперь откат всегда берёт персональный файл, а общий
+     * остаётся только для сценария «откатить всё, что менялось последним».
+     */
     public boolean snapshot(Container container) {
         if (container == null) return false;
         try {
@@ -215,6 +229,7 @@ public final class GpuManager {
                     + "dxwrapperConfig=" + container.getDXWrapperConfig() + "\n"
                     + "time=" + System.currentTimeMillis() + "\n";
 
+            FileUtils.writeString(new File(dir, snapshotFileName(container.id)), content);
             FileUtils.writeString(new File(dir, SNAPSHOT_FILE), content);
             P3Log.info(TAG, "Снимок GPU-настроек контейнера #" + container.id + " сохранён");
             return true;
@@ -222,6 +237,11 @@ public final class GpuManager {
             P3Log.error(TAG, "Не удалось сохранить снимок GPU-настроек", t);
             return false;
         }
+    }
+
+    /** Путь к персональному снимку контейнера. */
+    private static String snapshotFileName(int containerId) {
+        return "graphics-snapshot-" + containerId + ".txt";
     }
 
     /**
@@ -232,19 +252,40 @@ public final class GpuManager {
     public String rollback(Container container) {
         if (container == null) return "Контейнер не найден";
 
-        File file = new File(AppPaths.of(context).getGraphicsDriverBackupDir(), SNAPSHOT_FILE);
+        File dir = AppPaths.of(context).getGraphicsDriverBackupDir();
+        File file = new File(dir, snapshotFileName(container.id));
+        boolean legacy = false;
+
+        if (!file.isFile()) {
+            // Совместимость с единственным снимком прежних версий. Берём его
+            // только если он снят именно с этого контейнера — иначе откат
+            // подменил бы настройки чужими.
+            file = new File(dir, SNAPSHOT_FILE);
+            legacy = true;
+        }
         if (!file.isFile()) return "Резервной копии нет — откатывать нечего";
 
         try {
             String graphicsDriver = null;
             String graphicsDriverConfig = null;
+            int snapshotContainerId = -1;
             for (String line : FileUtils.readLines(file, true)) {
                 int separator = line.indexOf('=');
                 if (separator <= 0) continue;
                 String key = line.substring(0, separator);
                 String value = line.substring(separator + 1);
-                if (key.equals("graphicsDriver")) graphicsDriver = value;
+                if (key.equals("containerId")) {
+                    try {
+                        snapshotContainerId = Integer.parseInt(value.trim());
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+                else if (key.equals("graphicsDriver")) graphicsDriver = value;
                 else if (key.equals("graphicsDriverConfig")) graphicsDriverConfig = value;
+            }
+
+            if (legacy && snapshotContainerId >= 0 && snapshotContainerId != container.id) {
+                return "Резервная копия относится к контейнеру #" + snapshotContainerId;
             }
 
             if (graphicsDriver != null && !graphicsDriver.isEmpty()) {
@@ -266,9 +307,51 @@ public final class GpuManager {
         }
     }
 
-    /** Есть ли снимок для отката. */
+    /** Есть ли снимок для отката вообще (для кнопки «Откатить»). */
     public boolean hasSnapshot() {
-        return new File(AppPaths.of(context).getGraphicsDriverBackupDir(), SNAPSHOT_FILE).isFile();
+        File dir = AppPaths.of(context).getGraphicsDriverBackupDir();
+        if (new File(dir, SNAPSHOT_FILE).isFile()) return true;
+        File[] files = dir.listFiles((d, name) ->
+                name.startsWith("graphics-snapshot-") && name.endsWith(".txt"));
+        return files != null && files.length > 0;
+    }
+
+    /** Есть ли снимок именно для этого контейнера. */
+    public boolean hasSnapshot(Container container) {
+        if (container == null) return false;
+        File dir = AppPaths.of(context).getGraphicsDriverBackupDir();
+        return new File(dir, snapshotFileName(container.id)).isFile()
+                || new File(dir, SNAPSHOT_FILE).isFile();
+    }
+
+    /**
+     * Откатить все контейнеры, для которых есть персональный снимок.
+     *
+     * <p>Это и есть настоящее восстановление после «включил драйвер во всех
+     * контейнерах, и всё перестало работать»: раньше откатывался один
+     * контейнер, остальные оставались со сломанным драйвером.
+     *
+     * @return число восстановленных контейнеров
+     */
+    public int rollbackAll() {
+        int restored = 0;
+        try {
+            java.util.ArrayList<Container> containers =
+                    new com.winlator.container.ContainerManager(context).getContainers();
+            for (Container container : containers) {
+                if (container == null) continue;
+                if (!hasSnapshot(container)) continue;
+                if (rollback(container) == null) restored++;
+            }
+            if (restored > 0) {
+                P3Database database = P3Database.get(context);
+                if (database != null) database.graphicsDriverDao().clearActive();
+                P3Log.info(TAG, "Откат выполнен для контейнеров: " + restored);
+            }
+        } catch (Throwable t) {
+            P3Log.error(TAG, "Массовый откат не удался", t);
+        }
+        return restored;
     }
 
     /** Утилита: выставить флаги записи драйвера без отдельного конструктора. */

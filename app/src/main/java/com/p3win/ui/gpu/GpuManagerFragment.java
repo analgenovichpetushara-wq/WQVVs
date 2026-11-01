@@ -207,17 +207,15 @@ public class GpuManagerFragment extends P3ModuleFragment {
 
     private void rollback() {
         async(() -> {
-            com.winlator.container.ContainerManager manager =
-                    new com.winlator.container.ContainerManager(requireContext());
             GpuManager gpu = new GpuManager(requireContext());
             if (!gpu.hasSnapshot()) return "none";
-            ArrayList<com.winlator.container.Container> containers = manager.getContainers();
-            if (containers.isEmpty()) return "none";
 
-            // Снимок один на последнюю активацию — откатываем все контейнеры,
-            // у которых снимок совпадает по времени (практически — первый).
-            String result = gpu.rollback(containers.get(0));
-            return result == null ? "ok" : result;
+            // Откат идёт по персональным снимкам: каждый контейнер получает
+            // обратно именно свои настройки. Прежняя версия восстанавливала
+            // только первый контейнер, остальные оставались со сломанным
+            // драйвером — и пользователь снова получал чёрный экран.
+            int restored = gpu.rollbackAll();
+            return restored > 0 ? "ok" : "none";
         }, result -> {
             if ("ok".equals(result)) {
                 P3Toast.show(getContext(), getString(R.string.p3_gpu_rollback_done));

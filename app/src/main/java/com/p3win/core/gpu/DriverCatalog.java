@@ -159,13 +159,40 @@ public final class DriverCatalog {
         return "";
     }
 
+    /**
+     * Тип компонента ядра для драйвера.
+     *
+     * <p>Turnip — это Vulkan-драйвер, который ядро ставит компонентом
+     * {@code TURNIP}. Gladio/Zink/Virgl — OpenGL-сторона; архив у них лежит в
+     * каталоге {@code adrenotools_driver} и называется по имени файла из
+     * манифеста, а не {@code <type>-<version>.tzst}. Раньше все драйверы
+     * проверялись как Turnip, поэтому установка Gladio всегда сообщала
+     * «архив не найден» либо, наоборот, находила чужой файл.
+     */
+    public static GeneralComponents.Type componentType(GraphicsDriver driver) {
+        if (driver == null) return GeneralComponents.Type.TURNIP;
+        if (GraphicsDrivers.GLADIO.equals(driver.driverId)
+                || GraphicsDrivers.ZINK.equals(driver.driverId)
+                || GraphicsDrivers.VIRGL.equals(driver.driverId)) {
+            return GeneralComponents.Type.ADRENOTOOLS_DRIVER;
+        }
+        return GeneralComponents.Type.TURNIP;
+    }
+
+    /** Имя файла архива: у Turnip — {@code turnip-<ver>.tzst}, у AdrenoTools — каталог. */
+    public static String archiveName(GraphicsDriver driver) {
+        if (driver == null) return "";
+        if (componentType(driver) == GeneralComponents.Type.ADRENOTOOLS_DRIVER) {
+            return driver.version;
+        }
+        return "turnip-" + driver.version + ".tzst";
+    }
+
     /** Файл архива драйвера внутри APK/каталога компонентов ядра. */
     public static File archiveFile(Context context, GraphicsDriver driver) {
         if (context == null || driver == null) return null;
-        GeneralComponents.Type type = GraphicsDrivers.TURNIP.equals(driver.driverId)
-                ? GeneralComponents.Type.TURNIP : GeneralComponents.Type.TURNIP;
-        File dir = GeneralComponents.getComponentDir(type, context);
-        return new File(dir, "turnip-" + driver.version + ".tzst");
+        File dir = GeneralComponents.getComponentDir(componentType(driver), context);
+        return new File(dir, archiveName(driver));
     }
 
     private static int majorVersion(String version) {

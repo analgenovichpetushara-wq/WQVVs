@@ -138,6 +138,16 @@ public class P3Application extends Application {
         /** Последний запущенный игровой экран: по нему строится отчёт о сбое. */
         private static java.lang.ref.WeakReference<Activity> lastGameActivity;
 
+        /**
+         * Название игры последнего запуска.
+         *
+         * <p>Хранится отдельно от Activity: к моменту разбора сбоя Activity уже
+         * мертва, а имя нужно, чтобы пользователь понял, что именно упало.
+         * Ссылка слабая, строка — нет: она крошечная и живёт до следующего
+         * запуска.
+         */
+        private static String lastGameActivityTitle;
+
         private static boolean isGameActivity(Activity activity) {
             return activity != null && CORE_GAME_ACTIVITY.equals(activity.getClass().getName());
         }
@@ -152,6 +162,7 @@ public class P3Application extends Application {
             SessionTracker.get().onSessionActivityCreated(activity, containerId, shortcutPath,
                     com.p3win.core.session.LaunchConditions.describe(activity, containerId, shortcutPath));
             lastGameActivity = new java.lang.ref.WeakReference<>(activity);
+            lastGameActivityTitle = lastGameTitle(activity);
 
             // P3 Engine подключается к игре снаружи ядра: HUD + источник кадров.
             // Оба шага не критичны — при любой ошибке игра продолжает работать
@@ -204,7 +215,10 @@ public class P3Application extends Application {
             if (!reason.isEmpty()) {
                 SessionTracker.get().setPendingFailureReason(reason);
                 com.p3win.core.log.CrashGuard.noteNativeCrash(activity, reason);
-                com.p3win.core.prefs.P3Prefs.setPendingCrash(gameTitleOf(shortcutPathOf(activity)),
+                // Название берём из поля, а не из Activity: к этому моменту
+                // intent уже может быть очищен системой.
+                com.p3win.core.prefs.P3Prefs.setPendingCrash(
+                        lastGameActivityTitle != null ? lastGameActivityTitle : "",
                         log != null ? log.getAbsolutePath() : "");
             }
 
@@ -212,6 +226,16 @@ public class P3Application extends Application {
             com.p3win.core.engine.EngineBridge.detach();
             com.p3win.core.log.GameLogCapture.stop();
             lastGameActivity = null;
+            lastGameActivityTitle = null;
+        }
+
+        /** Название игры последнего запуска (для отчёта о сбое). */
+        private static String lastGameTitle(Activity activity) {
+            if (activity == null || activity.getIntent() == null) return "";
+            String shortcut = activity.getIntent().getStringExtra("shortcut_path");
+            String title = gameTitleOf(shortcut);
+            if (title == null || title.isEmpty()) title = shortcutFileName(shortcut);
+            return title != null ? title : "";
         }
 
         /** Что запускалось — для заголовка экрана разбора сбоя. */

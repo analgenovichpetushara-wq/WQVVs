@@ -381,6 +381,60 @@ def check_core_calls():
     print(f"[calls] {n} обращений к ядру")
 
 
+# --- 5c. Тема диалогов -----------------------------------------------------
+def check_dialog_theme():
+    """
+    android.app.AlertDialog с темой Theme.AppCompat.* падает в рантайме:
+    AppCompat-тема содержит атрибуты, которые системный диалог не понимает,
+    и Android выбрасывает IllegalArgumentException при show().
+
+    Ошибка невидима для компилятора (обе темы — просто @style/...), поэтому
+    ловится здесь: если рядом с Builder стоит R.style.Theme_P3Win_Dialog,
+    класс диалога обязан быть androidx.appcompat.app.AlertDialog.
+    """
+    bad = 0
+    for dp, _, fs in os.walk(P3_ROOT):
+        for f in fs:
+            if not f.endswith(".java"):
+                continue
+            p = os.path.join(dp, f)
+            text = strip_comments(open(p, encoding="utf-8").read())
+            if "Theme_P3Win_Dialog" not in text:
+                continue
+            # Важно ловить не только полное имя, но и импорт: чаще всего код
+            # пишет "import android.app.AlertDialog" и дальше AlertDialog.Builder(..),
+            # и именно так выглядел реальный дефект.
+            uses_framework = ("android.app.AlertDialog" in text
+                              and re.search(r'\bAlertDialog\s*\.\s*Builder', text))
+            if uses_framework:
+                err(f"DIALOG {rel(p)}: android.app.AlertDialog с темой AppCompat — "
+                    f"используйте androidx.appcompat.app.AlertDialog")
+                bad += 1
+    print(f"[dialog] тема диалогов проверена ({bad} проблем)")
+
+
+# --- 5d. Ссылки на несуществующие скрипты/документы -----------------------
+def check_doc_refs():
+    """
+    Комментарий, отправляющий читателя к несуществующему файлу, хуже
+    отсутствия комментария: он создаёт уверенность, что инструмент есть.
+    """
+    rx = re.compile(r'(?:scripts|docs)/[A-Za-z0-9_./-]+\.(?:ps1|sh|py|md)')
+    repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    missing = set()
+    for dp, _, fs in os.walk(P3_ROOT):
+        for f in fs:
+            if not f.endswith(".java"):
+                continue
+            text = open(os.path.join(dp, f), encoding="utf-8").read()
+            for match in rx.findall(text):
+                if not os.path.exists(os.path.join(repo, match)):
+                    missing.add(match)
+    for m in sorted(missing):
+        warn(f"DOCREF: упоминается отсутствующий файл {m}")
+    print(f"[docs] ссылки на скрипты проверены ({len(missing)} отсутствуют)")
+
+
 def main():
     check_syntax()
     check_imports()
@@ -390,6 +444,8 @@ def main():
     check_r_imports()
     check_layer()
     check_core_calls()
+    check_dialog_theme()
+    check_doc_refs()
     print()
     if warnings:
         print(f"ПРЕДУПРЕЖДЕНИЯ ({len(warnings)}):")

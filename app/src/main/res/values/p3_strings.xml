@@ -234,4 +234,11 @@
     <string name="p3_setup_gpu">Графический ускоритель: %1$s</string>
     <string name="p3_setup_no_db">База библиотеки недоступна — данные игр не сохранятся</string>
     <string name="p3_done">Готово</string>
+
+    <string name="p3_setup_running">Установка…</string>
+    <string name="p3_setup_hint_running">Не закрывайте приложение: идёт распаковка образа</string>
+    <string name="p3_setup_hint_done">Готово. Теперь создайте контейнер.</string>
+    <string name="p3_setup_hint_failed">Установка не завершена — попробуйте снова</string>
+    <string name="p3_setup_need_permission">Разрешите доступ к файлам и повторите</string>
+    <string name="p3_setup_done">Wine-образ установлен</string>
 </resources>

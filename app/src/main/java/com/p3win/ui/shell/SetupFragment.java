@@ -7,7 +7,9 @@ import android.widget.TextView;
 
 import com.p3win.P3Application;
 import com.p3win.core.integration.CoreContainerLink;
+import com.p3win.core.integration.RootFSBridge;
 import com.p3win.core.paths.AppPaths;
+import com.p3win.ui.widget.P3Toast;
 import com.p3win.util.P3Format;
 import com.winlator.R;
 import com.winlator.core.GPUHelper;
@@ -38,6 +40,10 @@ public class SetupFragment extends P3ModuleFragment {
     private View statusView;
     private View spaceView;
     private LinearLayout steps;
+    private TextView installAction;
+    private TextView hintView;
+    private android.widget.ProgressBar progress;
+    private boolean installing;
 
     @Override
     protected int titleRes() {
@@ -73,7 +79,27 @@ public class SetupFragment extends P3ModuleFragment {
         params.topMargin = dp(20);
         action.setLayoutParams(params);
         action.setOnClickListener(v -> startInstaller());
+
+        installAction = action;
         body.addView(action);
+
+        hintView = new TextView(requireContext());
+        hintView.setText(R.string.p3_setup_hint);
+        hintView.setTextSize(11f);
+        hintView.setGravity(Gravity.CENTER);
+        hintView.setTextColor(getResources().getColor(R.color.p3_text_tertiary));
+        hintView.setPadding(0, dp(10), 0, 0);
+        body.addView(hintView);
+
+        progress = new android.widget.ProgressBar(requireContext(),
+                null, android.R.attr.progressBarStyleHorizontal);
+        progress.setMax(100);
+        progress.setVisibility(View.GONE);
+        LinearLayout.LayoutParams progressParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(6));
+        progressParams.topMargin = dp(12);
+        progress.setLayoutParams(progressParams);
+        body.addView(progress);
 
         loadState();
     }
@@ -183,18 +209,72 @@ public class SetupFragment extends P3ModuleFragment {
     }
 
     /**
-     * Передать установку ядру.
+     * Запустить установку образа.
      *
-     * <p>{@code RootFSInstaller.installIfNeeded} вызывается из
-     * {@code MainActivity.onCreate}, поэтому достаточно открыть экран ядра —
-     * он сам покажет прогресс и запросит нужные разрешения. Дублировать
-     * распаковку в P3 значило бы поддерживать вторую копию логики версий.
+     * <p>Распаковка идёт в фоне через {@link RootFSBridge}, прогресс — в
+     * ProgressBar этого экрана. Пользователь остаётся в оболочке: раньше здесь
+     * был переход в {@code MainActivity} ядра, что выглядело как «P3WIN
+     * выбросил меня в другое приложение» на самом первом экране.
+     *
+     * <p>Экран не даёт запустить установку дважды: кнопка блокируется до
+     * завершения, иначе два параллельных извлечения в один каталог дают
+     * повреждённый rootfs.
      */
     private void startInstaller() {
-        if (getContext() == null) return;
-        new CoreContainerLink(requireContext().getApplicationContext())
-                .openSystemInstaller(requireActivity());
-        toastHint();
+        if (getContext() == null || installing) return;
+
+        final android.content.Context context = requireContext().getApplicationContext();
+        // Activity захватываем до ухода в фон: requireActivity() внутри
+        // рабочего потока бросит IllegalStateException, если пользователь
+        // успел закрыть экран, и установка молча оборвётся.
+        final android.app.Activity host = requireActivity();
+        if (RootFSBridge.needsStoragePermission(host)) {
+            P3Toast.show(getContext(), getString(R.string.p3_setup_need_permission));
+            new CoreContainerLink(context).openSystemInstaller(requireActivity());
+            return;
+        }
+
+        installing = true;
+        // Экран не должен заснуть посреди установки: ядро делает так же
+        // (AppUtils.keepScreenOn), но у нас нет доступа к его диалогу.
+        host.getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        installAction.setEnabled(false);
+        installAction.setText(R.string.p3_setup_running);
+        progress.setVisibility(View.VISIBLE);
+        progress.setProgress(0);
+        hintView.setText(R.string.p3_setup_hint_running);
+
+        new Thread(() -> {
+            String error = RootFSBridge.install(context, percent -> {
+                if (host.isFinishing() || host.isDestroyed()) return;
+                host.runOnUiThread(() -> {
+                    if (isAdded() && progress != null) progress.setProgress(percent);
+                });
+            });
+            if (host.isFinishing() || host.isDestroyed()) return;
+            host.runOnUiThread(() -> finishInstall(error));
+        }, "p3-rootfs").start();
+    }
+
+    private void finishInstall(String error) {
+        if (!isAdded()) return;
+        installing = false;
+        if (getActivity() != null) {
+            getActivity().getWindow().clearFlags(
+                    android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+        installAction.setEnabled(true);
+        installAction.setText(R.string.p3_setup_start);
+        progress.setVisibility(View.GONE);
+
+        if (error == null) {
+            hintView.setText(R.string.p3_setup_hint_done);
+            P3Toast.show(getContext(), getString(R.string.p3_setup_done));
+            loadState();
+        } else {
+            hintView.setText(R.string.p3_setup_hint_failed);
+            P3Toast.show(getContext(), error);
+        }
     }
 
     /** После возврата из установщика состояние пересчитывается. */
@@ -202,10 +282,6 @@ public class SetupFragment extends P3ModuleFragment {
     public void onResume() {
         super.onResume();
         reloadDelayed(this::loadState);
-    }
-
-    private void toastHint() {
-        com.p3win.ui.widget.P3Toast.show(getContext(), getString(R.string.p3_setup_hint));
     }
 
     private static final class State {

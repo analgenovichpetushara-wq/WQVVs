@@ -63,6 +63,42 @@ public class P3SettingsFragment extends P3ModuleFragment {
 
         valueRow(body, getString(R.string.p3_settings_logs),
                 logSummary(), this::openLogs);
+
+        // --- О приложении --------------------------------------------------
+        // Версия и безопасный режим нужны именно здесь: при разборе проблемы
+        // пользователь первым делом открывает настройки, а не диагностику.
+        body.addView(section(getString(R.string.p3_settings_about)));
+
+        valueRow(body, getString(R.string.p3_settings_version), versionText(), null);
+        valueRow(body, getString(R.string.p3_settings_layer), "Winlator 11.2 · com.winlator", null);
+        valueRow(body, getString(R.string.p3_settings_safe_mode),
+                P3Prefs.safeMode() ? getString(R.string.p3_yes) : getString(R.string.p3_no),
+                this::toggleSafeMode);
+    }
+
+    private String versionText() {
+        try {
+            return requireContext().getPackageManager()
+                    .getPackageInfo(requireContext().getPackageName(), 0).versionName;
+        } catch (Throwable t) {
+            return getString(R.string.p3_unknown);
+        }
+    }
+
+    /**
+     * Ручное включение/выключение безопасного режима.
+     *
+     * <p>Обычно он включается сам после серии падений. Но бывает и обратная
+     * задача: проверить, «в драйвере ли дело» — тогда режим включают руками,
+     * чтобы сравнить два запуска.
+     */
+    private void toggleSafeMode() {
+        P3Prefs.setSafeMode(!P3Prefs.safeMode());
+        body.removeAllViews();
+        buildBody(body);
+        P3Toast.show(getContext(), P3Prefs.safeMode()
+                ? getString(R.string.p3_settings_safe_mode_on)
+                : getString(R.string.p3_settings_safe_mode_off));
     }
 
     // ------------------------------------------------------------------

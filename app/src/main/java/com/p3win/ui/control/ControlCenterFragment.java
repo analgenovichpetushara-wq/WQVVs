@@ -93,7 +93,9 @@ public class ControlCenterFragment extends P3Fragment {
      */
     private void openCoreScreen() {
         try {
-            Intent intent = new Intent(getContext(), Class.forName("com.winlator.MainActivity"));
+            // Прямая ссылка на класс, а не Class.forName: обфускатор/R8 видит
+            // такую зависимость и не вырежет экран ядра из release-сборки.
+            Intent intent = new Intent(getContext(), com.winlator.MainActivity.class);
             intent.putExtra("selected_menu_item_id", 0);
             startActivity(intent);
         } catch (Throwable t) {

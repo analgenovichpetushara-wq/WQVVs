@@ -21,8 +21,11 @@ android {
         // access + foreground service behaviour). Raising it is part of the
         // Phase 1 storage-strategy work, not of the Phase 0 smoke build.
         targetSdkVersion 28
-        versionCode 1
-        versionName "0.1.0-phase0"
+        // 0.3.0: оболочка Shell, данные, engine HUD, fail-safe и статистика готовы.
+        // versionCode ниже upstream-овских (33) намеренно: P3WIN не должен
+        // «обновиться» поверх установленного Winlator 11.2 пользователя.
+        versionCode 30
+        versionName "0.3.0-p3win"
     }
 
     buildTypes {
@@ -35,6 +38,12 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            // Подпись НЕ описывается здесь: хранить пароль в репозитории нельзя,
+            // а проверять Groovy-условия без сборки — риск сломать конфигурацию.
+            // APK подписывается скриптом scripts/release.ps1 через apksigner
+            // (см. docs/03_RELEASE.md). Без ключа release остаётся unsigned —
+            // это штатное поведение Gradle.
         }
     }
 

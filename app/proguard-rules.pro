@@ -17,3 +17,23 @@
 #}
 
 -dontobfuscate
+
+# ---------------------------------------------------------------------------
+# P3WIN
+# ---------------------------------------------------------------------------
+# P3 не использует рефлексию по классам ядра: экраны открываются прямыми
+# ссылками (MainActivity.class, ControlsEditorActivity.class), поэтому R8
+# видит зависимость и не вырезает их.
+#
+# Правила ниже страхуют точки входа, которые вызывает Android по имени из
+# манифеста и которые нельзя терять в release: без них игра запускается, но
+# «Открыть ядро» или редактор раскладок могут отвалиться только в подписанной
+# сборке — самый дорогой вид дефекта.
+-keep class com.winlator.MainActivity { *; }
+-keep class com.winlator.XServerDisplayActivity { *; }
+-keep class com.winlator.ControlsEditorActivity { *; }
+-keep class com.winlator.ExternalControllerBindingsActivity { *; }
+
+# P3-оверлей HUD создаётся кодом и цепляется к root-view игры по id.
+# Обфускация имён полей не нужна, но keep делает стектрейсы читаемыми.
+-keep class com.p3win.core.engine.** { *; }

@@ -185,7 +185,8 @@ public final class AppPaths {
      *
      * <p>Вызывается один раз на старте. Задача — превратить «тихий» отказ
      * (контейнер не стартует через три минуты после распаковки) в явную
-     * запись в логе: «пути разъехались, запустите scripts/rename_package.ps1».
+     * запись в логе: «пути разъехались, запустите scripts/rename_package.ps1»
+     * (см. {@code docs/02_PACKAGE_RENAME.md}).
      *
      * @param expectedDataDir эталонный префикс, например {@code /data/data/<package>}
      * @return null, если всё совпадает; иначе текст проблемы

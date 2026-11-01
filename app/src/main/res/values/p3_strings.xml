@@ -206,4 +206,10 @@
     <string name="p3_input_library_empty">Библиотека пуста</string>
     <string name="p3_input_library_done">Импортировано раскладок: %1$d</string>
     <string name="p3_input_library_none">Новых раскладок нет</string>
+
+    <!-- Настройки: о приложении -->
+    <string name="p3_settings_about">О приложении</string>
+    <string name="p3_settings_safe_mode">Безопасный режим</string>
+    <string name="p3_settings_safe_mode_on">Безопасный режим включён: GPU-оверрайды профилей при запуске игнорируются</string>
+    <string name="p3_settings_safe_mode_off">Безопасный режим выключен</string>
 </resources>

@@ -78,6 +78,11 @@ public class DiagnosticsFragment extends P3Fragment {
             return sessions + " сессий, " + crashes + " аварийных";
         }, stats -> addLine(layout, "Сессии", stats == null ? "—" : stats));
 
+        async(() -> {
+            long total = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+            return P3Format.size(total) + " занято процессом";
+        }, memory -> addLine(layout, "Память JVM", memory == null ? "—" : memory));
+
         File log = P3Log.currentLogFile();
         addLine(layout, "Лог", log != null ? log.getAbsolutePath() : "—");
         addLine(layout, "Последние строки", P3Log.tail(log, 25));

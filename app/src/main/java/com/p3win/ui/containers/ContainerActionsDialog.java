@@ -40,6 +40,7 @@ final class ContainerActionsDialog {
 
         new AlertDialog.Builder(context, R.style.Theme_P3Win_Dialog)
                 .setTitle(container.name)
+                .setIcon(R.drawable.p3_ic_input)
                 .setItems(items, (dialog, which) -> {
                     switch (which) {
                         case 0:
@@ -64,7 +65,19 @@ final class ContainerActionsDialog {
 
     private void runContainer() {
         String error = GameLauncher.launchContainer(context, (int) container.id);
-        if (error != null) P3Toast.show(context, error);
+        if (error == null) return;
+
+        // Система не установлена — это не «ошибка запуска», а незавершённая
+        // настройка. Ведём в мастер, а не показываем тост с текстом, который
+        // пользователю некуда применить.
+        if (error.startsWith(GameLauncher.ERR_NEED_SETUP)
+                && context instanceof androidx.fragment.app.FragmentActivity) {
+            com.p3win.ui.shell.P3Navigator.push(
+                    (androidx.fragment.app.FragmentActivity) context,
+                    new com.p3win.ui.shell.SetupFragment());
+            return;
+        }
+        P3Toast.show(context, error);
     }
 
     private void duplicateContainer() {

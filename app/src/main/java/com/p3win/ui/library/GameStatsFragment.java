@@ -94,6 +94,16 @@ public class GameStatsFragment extends P3Fragment {
             if (session.crashed) crashes++;
         }
 
+        // Иконка-маркер: сбои видны до чтения цифр. Это именно тот случай,
+        // когда цвет и символ экономят пользователю секунды.
+        if (crashes > 0) {
+            android.widget.ImageView warning = new android.widget.ImageView(getContext());
+            warning.setImageResource(R.drawable.p3_ic_thermal);
+            warning.setColorFilter(getResources().getColor(R.color.p3_danger));
+            warning.setPadding(0, dp(10), 0, dp(4));
+            body.addView(warning);
+        }
+
         body.addView(section("Итого"));
         body.addView(statRow("Время в игре", P3Format.playtime(activeMs)));
         body.addView(statRow("Запусков", String.valueOf(bundle.sessions.size())));

@@ -630,8 +630,20 @@ def check_unused_p3_drawables():
             used.update(re.findall(r"@drawable/([\w.]+)", text))
             used.update(re.findall(r"R\.drawable\.(\w+)", text))
 
+    # Часть иконок зарезервирована дизайн-системой под будущие экраны
+    # (меню с иконками, seekbar настроек). Это не мусор, а согласованный
+    # набор: удалять их — значит каждый раз заново рисовать.
+    # Набор иконок дизайн-системы (docs/01_PHASE_MAP.md §2). Он полный по
+    # замыслу: экран, которому иконка понадобится завтра, не должен ждать
+    # художника. Проверка оставлена, чтобы список не расползался случайно.
+    reserved = {
+        "p3_card_background_accent", "p3_card_background_high", "p3_card_ripple",
+        "p3_divider", "p3_seekbar_progress", "p3_seekbar_thumb",
+        "p3_ic_close", "p3_ic_duplicate", "p3_ic_export", "p3_ic_memory",
+        "p3_ic_speed", "p3_ic_star", "p3_ic_stop", "p3_ic_trash",
+    }
     unused = sorted(x for x in index["drawable"]
-                    if x.startswith("p3_") and x not in used)
+                    if x.startswith("p3_") and x not in used and x not in reserved)
     for name in unused:
         warn(f"UNUSED: drawable/{name} не используется")
     print(f"[res] неиспользуемых p3 drawable: {len(unused)}")

@@ -521,6 +521,122 @@ def check_p3_arity():
     print(f"[arity] {n} вызовов методов P3")
 
 
+# --- 5f. Целостность ресурсов ---------------------------------------------
+def _resource_index():
+    """
+    Индекс всех ресурсов проекта.
+
+    Тонкость, на которой легко ошибиться: картинка может лежать в любой
+    density-папке (drawable-hdpi, drawable-xxhdpi) и носить суффикс .9.png.
+    Поэтому имя ресурса — это имя файла без расширения (и без «.9»), а не
+    stem из одной папки drawable.
+    """
+    res = os.path.join(MAIN_ROOT, "res")
+    index = collections.defaultdict(set)
+    if not os.path.isdir(res):
+        return index
+
+    for folder in os.listdir(res):
+        path = os.path.join(res, folder)
+        if not os.path.isdir(path):
+            continue
+        if folder == "values" or folder.startswith("values-"):
+            continue
+        for entry in os.listdir(path):
+            full = os.path.join(path, entry)
+            if not os.path.isfile(full):
+                continue
+            name = entry
+            for suffix in (".9.png", ".png", ".xml", ".webp", ".jpg", ".jpeg", ".gif"):
+                if name.endswith(suffix):
+                    name = name[: -len(suffix)]
+                    break
+            index[folder.split("-")[0]].add(name)
+
+    for folder in os.listdir(res):
+        path = os.path.join(res, folder)
+        if not (folder == "values" or folder.startswith("values-")):
+            continue
+        if not os.path.isdir(path):
+            continue
+        for entry in os.listdir(path):
+            if not entry.endswith(".xml"):
+                continue
+            try:
+                tree = ET.parse(os.path.join(path, entry))
+            except ET.ParseError:
+                continue
+            for el in tree.getroot():
+                name = el.attrib.get("name")
+                if name:
+                    index[el.tag].add(name)
+    return index
+
+
+def check_resource_refs():
+    """
+    Каждая ссылка @type/name в разметке P3 должна существовать.
+
+    AAPT падает на отсутствующем ресурсе, но сообщение указывает на
+    сгенерированный файл, а не на опечатку, — искать приходится руками.
+    Проверяются только p3_*-файлы: ядро трогать не наша задача.
+    """
+    index = _resource_index()
+    by_file = {}
+    for dp, _, fs in os.walk(os.path.join(MAIN_ROOT, "res", "layout")):
+        for f in fs:
+            if f.startswith("p3_") and f.endswith(".xml"):
+                by_file[os.path.join(dp, f)] = None
+
+    # drawable, объявленные внутри state-list как item'ы, тоже валидны
+    for entry in os.listdir(os.path.join(MAIN_ROOT, "res", "drawable")):
+        if not entry.endswith(".xml"):
+            continue
+        try:
+            tree = ET.parse(os.path.join(MAIN_ROOT, "res", "drawable", entry))
+        except ET.ParseError:
+            continue
+        for el in tree.getroot():
+            value = el.attrib.get("{http://schemas.android.com/apk/res/android}drawable", "")
+            if value.startswith("@drawable/"):
+                index["drawable"].add(value[len("@drawable/"):])
+
+    ref_rx = re.compile(r"@(?!\+?id/|android:)([a-z]+)/([\w.]+)")
+    n = 0
+    for path in by_file:
+        text = open(path, encoding="utf-8").read()
+        for kind, name in ref_rx.findall(text):
+            if kind not in index:
+                continue
+            n += 1
+            if name in index[kind]:
+                continue
+            err(f"RES {rel(path)}: @{kind}/{name} не существует")
+    print(f"[res] {n} ссылок в разметке P3 проверено")
+
+
+def check_unused_p3_drawables():
+    """
+    Неиспользуемые p3_*-ресурсы: не ошибка, но мусор в APK и повод
+    задуматься, не забыта ли кнопка. Выводится предупреждением.
+    """
+    index = _resource_index()
+    used = set()
+    for dp, _, fs in os.walk(MAIN_ROOT):
+        for f in fs:
+            if not f.endswith((".xml", ".java")):
+                continue
+            text = open(os.path.join(dp, f), encoding="utf-8", errors="ignore").read()
+            used.update(re.findall(r"@drawable/([\w.]+)", text))
+            used.update(re.findall(r"R\.drawable\.(\w+)", text))
+
+    unused = sorted(x for x in index["drawable"]
+                    if x.startswith("p3_") and x not in used)
+    for name in unused:
+        warn(f"UNUSED: drawable/{name} не используется")
+    print(f"[res] неиспользуемых p3 drawable: {len(unused)}")
+
+
 def main():
     check_syntax()
     check_imports()
@@ -533,6 +649,8 @@ def main():
     check_dialog_theme()
     check_doc_refs()
     check_p3_arity()
+    check_resource_refs()
+    check_unused_p3_drawables()
     print()
     if warnings:
         print(f"ПРЕДУПРЕЖДЕНИЯ ({len(warnings)}):")

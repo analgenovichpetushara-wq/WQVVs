@@ -64,10 +64,23 @@ public final class P3Prefs {
         return prefs;
     }
 
+    /**
+     * Инициализированы ли настройки.
+     *
+     * <p>P3 Engine может попросить значение (частота опроса, позиция HUD) до
+     * того, как {@code P3Application.onCreate} дошёл до {@link #init}.
+     * Без этой проверки обращение к {@link #raw()} дало бы NPE в момент
+     * первого кадра игры — то есть ровно там, где отладка дороже всего.
+     * Читатели, допускающие такой порядок, спрашивают {@code ready()}.
+     */
+    public static boolean ready() {
+        return prefs != null;
+    }
+
     // --- Оформление ------------------------------------------------------
 
     public static int accentColor() {
-        return prefs.getInt(KEY_ACCENT, ACCENT_P3_CYAN);
+        return prefs != null ? prefs.getInt(KEY_ACCENT, ACCENT_P3_CYAN) : ACCENT_P3_CYAN;
     }
 
     public static void setAccentColor(int color) {
@@ -75,7 +88,7 @@ public final class P3Prefs {
     }
 
     public static int theme() {
-        return prefs.getInt(KEY_THEME, THEME_DARK);
+        return prefs != null ? prefs.getInt(KEY_THEME, THEME_DARK) : THEME_DARK;
     }
 
     public static void setTheme(int theme) {
@@ -83,12 +96,12 @@ public final class P3Prefs {
     }
 
     public static int cardCornerRadiusPx(Context context) {
-        int dp = prefs.getInt(KEY_CARD_RADIUS, 14);
+        int dp = prefs != null ? prefs.getInt(KEY_CARD_RADIUS, 14) : 14;
         return (int) (dp * context.getResources().getDisplayMetrics().density);
     }
 
     public static int gridColumns() {
-        return prefs.getInt(KEY_GRID_COLUMNS, DEFAULT_GRID_COLUMNS);
+        return prefs != null ? prefs.getInt(KEY_GRID_COLUMNS, DEFAULT_GRID_COLUMNS) : DEFAULT_GRID_COLUMNS;
     }
 
     public static void setGridColumns(int columns) {
@@ -96,7 +109,7 @@ public final class P3Prefs {
     }
 
     public static boolean showClock() {
-        return prefs.getBoolean(KEY_SHOW_CLOCK, true);
+        return prefs == null || prefs.getBoolean(KEY_SHOW_CLOCK, true);
     }
 
     public static void setShowClock(boolean show) {
@@ -106,7 +119,7 @@ public final class P3Prefs {
     // --- P3 Engine -------------------------------------------------------
 
     public static boolean engineHudEnabled() {
-        return prefs.getBoolean(KEY_ENGINE_HUD, true);
+        return prefs == null || prefs.getBoolean(KEY_ENGINE_HUD, true);
     }
 
     public static void setEngineHudEnabled(boolean enabled) {
@@ -114,7 +127,7 @@ public final class P3Prefs {
     }
 
     public static int engineHudPosition() {
-        return prefs.getInt(KEY_ENGINE_HUD_POSITION, HUD_TOP_RIGHT);
+        return prefs != null ? prefs.getInt(KEY_ENGINE_HUD_POSITION, HUD_TOP_RIGHT) : HUD_TOP_RIGHT;
     }
 
     public static void setEngineHudPosition(int position) {
@@ -122,7 +135,7 @@ public final class P3Prefs {
     }
 
     public static int engineSampleMs() {
-        return prefs.getInt(KEY_ENGINE_SAMPLE_MS, DEFAULT_SAMPLE_MS);
+        return prefs != null ? prefs.getInt(KEY_ENGINE_SAMPLE_MS, DEFAULT_SAMPLE_MS) : DEFAULT_SAMPLE_MS;
     }
 
     public static void setEngineSampleMs(int ms) {
@@ -130,7 +143,7 @@ public final class P3Prefs {
     }
 
     public static boolean engineTemperatureEnabled() {
-        return prefs.getBoolean(KEY_ENGINE_TEMP, true);
+        return prefs == null || prefs.getBoolean(KEY_ENGINE_TEMP, true);
     }
 
     public static void setEngineTemperatureEnabled(boolean enabled) {
@@ -138,17 +151,17 @@ public final class P3Prefs {
     }
 
     public static int controlCenterGesture() {
-        return prefs.getInt(KEY_CONTROL_CENTER_GESTURE, 1);
+        return prefs != null ? prefs.getInt(KEY_CONTROL_CENTER_GESTURE, 1) : 1;
     }
 
     // --- Прочее ----------------------------------------------------------
 
     public static boolean keepSessions() {
-        return prefs.getBoolean(KEY_KEEP_SESSIONS_DB, true);
+        return prefs == null || prefs.getBoolean(KEY_KEEP_SESSIONS_DB, true);
     }
 
     public static String defaultContainerPreset() {
-        return prefs.getString(KEY_DEFAULT_CONTAINER_PRESET, "balanced");
+        return prefs != null ? prefs.getString(KEY_DEFAULT_CONTAINER_PRESET, "balanced") : "balanced";
     }
 
     public static void setDefaultContainerPreset(String presetId) {
@@ -156,7 +169,7 @@ public final class P3Prefs {
     }
 
     public static boolean firstRunDone() {
-        return prefs.getBoolean(KEY_FIRST_RUN_DONE, false);
+        return prefs != null && prefs.getBoolean(KEY_FIRST_RUN_DONE, false);
     }
 
     public static void setFirstRunDone(boolean done) {
@@ -164,7 +177,7 @@ public final class P3Prefs {
     }
 
     public static int lastTab() {
-        return prefs.getInt(KEY_LAST_TAB, 0);
+        return prefs != null ? prefs.getInt(KEY_LAST_TAB, 0) : 0;
     }
 
     public static void setLastTab(int tab) {
@@ -176,7 +189,7 @@ public final class P3Prefs {
      * Включается автоматически после серии падений (см. CrashGuard).
      */
     public static boolean safeMode() {
-        return prefs.getBoolean(KEY_SAFE_MODE, false);
+        return prefs != null && prefs.getBoolean(KEY_SAFE_MODE, false);
     }
 
     public static void setSafeMode(boolean enabled) {

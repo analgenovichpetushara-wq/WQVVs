@@ -136,6 +136,19 @@ public class P3Application extends Application {
             String shortcutPath = activity.getIntent() != null
                     ? activity.getIntent().getStringExtra("shortcut_path") : null;
             SessionTracker.get().onSessionActivityCreated(activity, containerId, shortcutPath);
+
+            // P3 Engine подключается к игре снаружи ядра: HUD + источник кадров.
+            // Оба шага не критичны — при любой ошибке игра продолжает работать
+            // без оверлея, а причина уходит в лог.
+            com.p3win.core.engine.EngineBridge.attachTo(activity);
+            com.p3win.core.engine.FrameSource.attach(activity);
+
+            // Fail-Safe: перехват stderr/stdout игрового процесса в файл.
+            // Подписка одновременно заставляет ядро не выбрасывать вывод в /dev/null.
+            String key = shortcutPath != null && !shortcutPath.isEmpty()
+                    ? shortcutFileName(shortcutPath)
+                    : (containerId > 0 ? "container-" + containerId : "unknown");
+            com.p3win.core.log.GameLogCapture.start(activity, key);
         }
 
         @Override
@@ -165,7 +178,21 @@ public class P3Application extends Application {
 
         @Override
         public void onActivityDestroyed(Activity activity) {
-            if (isGameActivity(activity)) SessionTracker.get().onSessionActivityDestroyed(activity);
+            if (!isGameActivity(activity)) return;
+            SessionTracker.get().onSessionActivityDestroyed(activity);
+            com.p3win.core.engine.EngineBridge.detach();
+            com.p3win.core.log.GameLogCapture.stop();
+        }
+
+        /** Имя ярлыка без расширения — им помечается лог игры. */
+        private static String shortcutFileName(String path) {
+            try {
+                String name = new java.io.File(path).getName();
+                int dot = name.lastIndexOf('.');
+                return dot > 0 ? name.substring(0, dot) : name;
+            } catch (Throwable t) {
+                return "unknown";
+            }
         }
     }
 }

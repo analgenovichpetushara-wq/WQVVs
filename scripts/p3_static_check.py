@@ -42,6 +42,13 @@ def rel(p):
     return os.path.relpath(p, ROOT)
 
 
+def strip_comments(text):
+    """Убрать // и /* */ комментарии: упоминание R.id в javadoc — не использование."""
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+    text = re.sub(r"//[^\n]*", "", text)
+    return text
+
+
 # --- 1. syntax -------------------------------------------------------------
 def check_syntax():
     try:
@@ -170,7 +177,7 @@ def check_r_refs(idx):
             if not f.endswith(".java"):
                 continue
             p = os.path.join(dp, f)
-            text = open(p, encoding="utf-8").read()
+            text = strip_comments(open(p, encoding="utf-8").read())
             for m in rx.finditer(text):
                 # android.R.xxx и подобные — платформенные ресурсы, не наши.
                 prefix = text[max(0, m.start() - 12):m.start()]
@@ -237,8 +244,9 @@ def check_r_imports():
                 continue
             p = os.path.join(dp, f)
             text = open(p, encoding="utf-8").read()
+            code = strip_comments(text)
             uses_r = re.search(r"(?<![\w.])R\.(id|layout|string|drawable|style|color|menu|xml|dimen)\.",
-                               text) is not None
+                               code) is not None
             if not uses_r:
                 continue
             n += 1

@@ -23,6 +23,8 @@ import com.p3win.data.entity.Game;
 import com.p3win.data.entity.GameProfile;
 import com.p3win.data.entity.Milestone;
 import com.p3win.ui.shell.P3Fragment;
+import com.p3win.ui.shell.P3Navigator;
+import com.p3win.ui.shell.SetupFragment;
 import com.p3win.ui.shell.P3ShellActivity;
 import com.p3win.ui.widget.GameRowAdapter;
 import com.p3win.ui.widget.P3ImageLoader;
@@ -120,14 +122,15 @@ public class HomeFragment extends P3Fragment implements GameRowAdapter.Listener 
                 !snapshot.systemReady ? R.string.p3_home_status_setup
                         : (hasGames ? R.string.p3_home_status_ready : R.string.p3_home_status_setup));
 
-        // Кнопка пустого состояния ведёт туда, где действительно чего-то не хватает:
-        // сначала rootfs (иначе контейнер не создать), затем — контейнеры.
+        // Пустое состояние — это состояние «система готова, но игр нет».
+        // Если rootfs не установлен, главная вообще не должна выглядеть пустой:
+        // Shell открывает мастер настройки (SetupFragment) поверх вкладок.
+        // Кнопка здесь ведёт только к созданию контейнера, иначе пользователь
+        // попадал бы в экран ядра из двух разных мест с разным текстом.
         View emptyAction = root.findViewById(R.id.P3HomeEmptyAction);
         emptyAction.setOnClickListener(v -> {
             if (!snapshot.systemReady) {
-                new com.p3win.core.integration.CoreContainerLink(
-                        requireContext().getApplicationContext())
-                        .openSystemInstaller(requireActivity());
+                P3Navigator.push(requireActivity(), new SetupFragment());
             } else {
                 openTab(P3ShellActivity.TAB_CONTAINERS);
             }

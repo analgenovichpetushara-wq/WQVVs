@@ -43,6 +43,7 @@ public class P3ShellActivity extends AppCompatActivity {
     public static final String EXTRA_CRASH_LOG = "p3_crash_log";
 
     private int currentTab = -1;
+    private boolean setupChecked;
     private View[] tabViews;
     private ImageView[] tabIcons;
     private TextView[] tabLabels;
@@ -60,6 +61,10 @@ public class P3ShellActivity extends AppCompatActivity {
         if (startTab < TAB_HOME || startTab > TAB_CONTROL) startTab = TAB_HOME;
 
         selectTab(startTab, false);
+
+        // Первый запуск: показываем не пустую библиотеку, а объяснение, что
+        // нужно распаковать rootfs. Проверка асинхронная — она читает файлы.
+        maybeShowSetup();
 
         if (getIntent() != null && getIntent().getBooleanExtra(EXTRA_SHOW_CRASH, false)) {
             // Отчёт о сбое показываем один раз: повторный запуск Shell должен
@@ -83,6 +88,40 @@ public class P3ShellActivity extends AppCompatActivity {
         if (P3Navigator.depth(this) > 0) return;
         String[] pending = P3Prefs.takePendingCrash();
         if (pending != null) showCrashReport(pending[0], pending[1]);
+    }
+
+    /**
+     * Показать мастер настройки, если система ещё не готова.
+     *
+     * <p>Вызывается один раз за жизнь Activity: после установки пользователь
+     * возвращается сюда же, и повторно навязывать мастер не нужно — экран
+     * сам пересчитает состояние в {@code onResume}.
+     */
+    private void maybeShowSetup() {
+        if (setupChecked) return;
+        setupChecked = true;
+
+        final android.content.Context context = getApplicationContext();
+        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+            new Thread(() -> {
+                boolean ready;
+                try {
+                    ready = new com.p3win.core.integration.CoreContainerLink(context)
+                            .isSystemReady();
+                } catch (Throwable t) {
+                    ready = false;
+                }
+                final boolean systemReady = ready;
+                runOnUiThread(() -> {
+                    if (isFinishing() || P3Navigator.depth(this) > 0) return;
+                    if (systemReady) {
+                        P3Prefs.setFirstRunDone(true);
+                        return;
+                    }
+                    P3Navigator.push(this, new SetupFragment());
+                });
+            }, "p3-setup-check").start();
+        });
     }
 
     /**

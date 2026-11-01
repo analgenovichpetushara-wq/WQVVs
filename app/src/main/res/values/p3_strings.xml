@@ -212,4 +212,26 @@
     <string name="p3_settings_safe_mode">Безопасный режим</string>
     <string name="p3_settings_safe_mode_on">Безопасный режим включён: GPU-оверрайды профилей при запуске игнорируются</string>
     <string name="p3_settings_safe_mode_off">Безопасный режим выключен</string>
+
+    <!-- Первичная настройка -->
+    <string name="p3_setup_title">Настройка</string>
+    <string name="p3_setup_intro">Прежде чем запускать игры, P3WIN нужен Wine-образ (rootfs). Это одноразовая распаковка примерно на 600 МБ — дальше всё работает без сети.</string>
+    <string name="p3_setup_device">Устройство</string>
+    <string name="p3_setup_status">Система</string>
+    <string name="p3_setup_space">Свободно в хранилище</string>
+    <string name="p3_setup_ready">Готово к работе</string>
+    <string name="p3_setup_missing">Не установлено</string>
+    <string name="p3_setup_steps">Порядок действий</string>
+    <string name="p3_setup_step_storage">Место на диске</string>
+    <string name="p3_setup_step_storage_low">Мало свободного места — освободите хотя бы 3 ГБ</string>
+    <string name="p3_setup_step_rootfs">Установка Wine-образа</string>
+    <string name="p3_setup_step_rootfs_todo">Откроется штатный установщик ядра</string>
+    <string name="p3_setup_step_container">Создание контейнера</string>
+    <string name="p3_setup_step_container_ready">Доступно во вкладке «Контейнеры»</string>
+    <string name="p3_setup_step_container_todo">После установки образа</string>
+    <string name="p3_setup_start">Начать установку</string>
+    <string name="p3_setup_hint">Установка продолжится на экране ядра</string>
+    <string name="p3_setup_gpu">Графический ускоритель: %1$s</string>
+    <string name="p3_setup_no_db">База библиотеки недоступна — данные игр не сохранятся</string>
+    <string name="p3_done">Готово</string>
 </resources>

@@ -19,6 +19,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
+        android:name="com.p3win.P3Application"
         android:icon="@mipmap/ic_launcher"
         android:appCategory="game"
         android:isGame="true"

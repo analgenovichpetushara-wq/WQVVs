@@ -108,6 +108,7 @@ public final class RootFSBridge {
             }
 
             rootFS.createRFSVersionFile(RootFSInstaller.LATEST_VERSION);
+            resetComponentVersions(app);
             resetContainerVersions(app);
 
             long seconds = (System.currentTimeMillis() - started) / 1000;
@@ -170,6 +171,33 @@ public final class RootFSBridge {
         for (File file : files) {
             if (file.getName().equals("installed-wine")) continue;
             com.winlator.core.FileUtils.delete(file);
+        }
+    }
+
+    /**
+     * Сбросить отметки уже распакованных компонентов.
+     *
+     * <p>Ядро делает это в {@code SettingsFragment.resetPreferenceVersions} —
+     * методе, который вызывается только из его же установщика. Без сброса
+     * после переустановки образа остаются «уже распакованы» для Box64 и
+     * графического драйвера, а их файлов в новом rootfs ещё нет: игра
+     * запускается и падает на отсутствующем {@code box64}.
+     *
+     * <p>Ключи повторяют ядро дословно: это часть его контракта с настройками,
+     * а не наши данные.
+     */
+    private static void resetComponentVersions(Context context) {
+        try {
+            android.content.SharedPreferences preferences =
+                    androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
+            preferences.edit()
+                    .putString("box64_version", com.winlator.core.DefaultVersion.BOX64)
+                    .remove("current_box64_version")
+                    .remove("current_graphics_driver")
+                    .apply();
+            P3Log.info(TAG, "Отметки компонентов сброшены — распакуются заново");
+        } catch (Throwable t) {
+            P3Log.error(TAG, "Не удалось сбросить отметки компонентов", t);
         }
     }
 

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  P3WIN Shell — строки интерфейса.
+
+  Отдельный файл, а не дополнение к strings.xml ядра: так переводы оболочки
+  можно отдавать отдельно, а конфликты с апстримом при обновлении ядра
+  исключены.
+-->
+<resources>
+
+    <!-- Навигация -->
+    <string name="p3_nav_home">Главная</string>
+    <string name="p3_nav_library">Библиотека</string>
+    <string name="p3_nav_containers">Контейнеры</string>
+    <string name="p3_nav_control">Центр</string>
+
+    <!-- Главный экран -->
+    <string name="p3_home_greeting">Добро пожаловать</string>
+    <string name="p3_home_continue">Продолжить</string>
+    <string name="p3_home_recent">Недавние</string>
+    <string name="p3_home_library">Библиотека</string>
+    <string name="p3_home_stats">Статистика</string>
+    <string name="p3_home_games">Игр</string>
+    <string name="p3_home_playtime">Всего в играх</string>
+    <string name="p3_home_sessions">Сессий</string>
+    <string name="p3_home_containers">Контейнеров</string>
+    <string name="p3_home_empty_title">Библиотека пуста</string>
+    <string name="p3_home_empty_text">Создайте контейнер и добавьте игры — или импортируйте ярлыки из существующего контейнера.</string>
+    <string name="p3_home_setup">Настроить окружение</string>
+    <string name="p3_home_status_ready">Система готова</string>
+    <string name="p3_home_status_setup">Требуется установка</string>
+    <string name="p3_home_milestones">Достижения</string>
+
+    <!-- Библиотека -->
+    <string name="p3_library_title">Библиотека</string>
+    <string name="p3_library_search">Поиск игр</string>
+    <string name="p3_library_all">Все</string>
+    <string name="p3_library_favorites">Избранное</string>
+    <string name="p3_library_sort">Сортировка</string>
+    <string name="p3_library_empty">Игр пока нет</string>
+    <string name="p3_library_empty_hint">Добавьте игру из контейнера или создайте ярлык вручную.</string>
+    <string name="p3_library_play">Играть</string>
+    <string name="p3_library_edit">Изменить</string>
+    <string name="p3_library_profile">Профиль запуска</string>
+    <string name="p3_library_remove">Убрать из библиотеки</string>
+    <string name="p3_library_add">Добавить игру</string>
+    <string name="p3_library_import_shortcuts">Импорт ярлыков контейнера</string>
+    <string name="p3_library_sort_title">По названию</string>
+    <string name="p3_library_sort_played">По времени игры</string>
+    <string name="p3_library_sort_playtime">По наигранному</string>
+    <string name="p3_library_sort_added">По дате добавления</string>
+    <string name="p3_library_sort_rating">По оценке</string>
+
+    <!-- Контейнеры -->
+    <string name="p3_containers_title">Контейнеры</string>
+    <string name="p3_containers_create">Создать контейнер</string>
+    <string name="p3_containers_empty">Контейнеров нет</string>
+    <string name="p3_containers_empty_hint">Контейнер — это отдельное Wine-окружение со своим префиксом и настройками. Создайте первый.</string>
+    <string name="p3_container_profile">Профиль</string>
+    <string name="p3_container_grade">Размер</string>
+    <string name="p3_container_games">Игр</string>
+    <string name="p3_container_open">Открыть</string>
+    <string name="p3_container_duplicate">Дублировать</string>
+    <string name="p3_container_export">Экспорт</string>
+    <string name="p3_container_import">Импорт</string>
+    <string name="p3_container_remove">Удалить</string>
+    <string name="p3_container_remove_confirm">Удалить контейнер вместе со всеми файлами? Действие необратимо.</string>
+    <string name="p3_container_name">Название</string>
+    <string name="p3_container_create_hint">Выберите профиль — остальное можно изменить позже.</string>
+    <string name="p3_container_creating">Создаём контейнер…</string>
+    <string name="p3_container_duplicating">Копируем контейнер…</string>
+    <string name="p3_container_applying">Применяем профиль…</string>
+    <string name="p3_container_apply_profile">Применить профиль</string>
+    <string name="p3_container_profile_applied">Профиль применён</string>
+    <string name="p3_container_free_space">Свободно</string>
+    <string name="p3_container_favorite">В избранное</string>
+    <string name="p3_container_edit_core">Настройки ядра</string>
+
+    <!-- Центр управления -->
+    <string name="p3_control_title">Центр управления</string>
+    <string name="p3_control_device">Устройство</string>
+    <string name="p3_control_gpu">GPU</string>
+    <string name="p3_control_engine">P3 Engine</string>
+    <string name="p3_control_input">Управление</string>
+    <string name="p3_control_settings">Настройки</string>
+    <string name="p3_control_diagnostics">Диагностика</string>
+    <string name="p3_control_safe_mode">Безопасный режим</string>
+    <string name="p3_control_safe_mode_on">Безопасный режим включён — GPU-оверрайды отключены</string>
+    <string name="p3_control_safe_mode_off">Отключить безопасный режим</string>
+    <string name="p3_control_quick_actions">Быстрые действия</string>
+    <string name="p3_control_open_core">Экран ядра</string>
+
+    <!-- GPU -->
+    <string name="p3_gpu_title">P3 GPU Manager</string>
+    <string name="p3_gpu_active">Активный драйвер</string>
+    <string name="p3_gpu_none">Не выбран</string>
+    <string name="p3_gpu_install">Установить</string>
+    <string name="p3_gpu_installed">Установлен</string>
+    <string name="p3_gpu_activate">Активировать</string>
+    <string name="p3_gpu_rollback">Откатить</string>
+    <string name="p3_gpu_rollback_done">Выполнен откат к предыдущему драйверу</string>
+    <string name="p3_gpu_rollback_none">Резервной копии нет</string>
+    <string name="p3_gpu_verifying">Проверяем совместимость…</string>
+    <string name="p3_gpu_compat_ok">Совместимо с Adreno 810</string>
+    <string name="p3_gpu_compat_warn">Заявлена поддержка Gen 8, но на этом устройстве не проверялось</string>
+    <string name="p3_gpu_compat_bad">Не поддерживает Adreno 810</string>
+    <string name="p3_gpu_detected">Обнаружено: %1$s</string>
+    <string name="p3_gpu_apply_to_container">Применить к контейнеру</string>
+    <string name="p3_gpu_empty">Драйверы не установлены</string>
+    <string name="p3_gpu_install_hint">Установите Turnip из каталога — это основной путь для Adreno.</string>
+
+    <!-- Управление -->
+    <string name="p3_input_title">P3 Input Manager</string>
+    <string name="p3_input_layouts">Раскладки</string>
+    <string name="p3_input_controller">Внешний геймпад</string>
+    <string name="p3_input_none">Геймпад не подключён</string>
+    <string name="p3_input_connected">Подключён: %1$s</string>
+    <string name="p3_input_mapper">Режим маппинга</string>
+    <string name="p3_input_mapper_standard">DirectInput</string>
+    <string name="p3_input_mapper_xinput">XInput</string>
+    <string name="p3_input_new_layout">Новая раскладка</string>
+    <string name="p3_input_edit_layout">Редактор раскладки</string>
+    <string name="p3_input_opacity">Прозрачность</string>
+    <string name="p3_input_scale">Масштаб</string>
+    <string name="p3_input_deadzone">Мёртвая зона</string>
+    <string name="p3_input_haptic">Вибрация</string>
+    <string name="p3_input_apply_ingame">Применится в следующей сессии</string>
+
+    <!-- Engine -->
+    <string name="p3_engine_title">P3 Engine</string>
+    <string name="p3_engine_hud">Оверлей производительности</string>
+    <string name="p3_engine_hud_position">Положение</string>
+    <string name="p3_engine_fps_cap">Ограничение FPS</string>
+    <string name="p3_engine_fsr">FSR</string>
+    <string name="p3_engine_fsr_hint">Пространственное масштабирование средствами игры/драйвера</string>
+    <string name="p3_engine_sharpness">Резкость</string>
+    <string name="p3_engine_temp">Температура</string>
+    <string name="p3_engine_off">Выключено</string>
+    <string name="p3_engine_summary">FPS</string>
+    <string name="p3_engine_frame_time">FT</string>
+    <string name="p3_engine_ram">RAM</string>
+    <string name="p3_engine_cpu">CPU</string>
+    <string name="p3_engine_gpu">GPU</string>
+
+    <!-- Настройки -->
+    <string name="p3_settings_title">Настройки P3WIN</string>
+    <string name="p3_settings_appearance">Оформление</string>
+    <string name="p3_settings_accent">Акцентный цвет</string>
+    <string name="p3_settings_theme">Тема</string>
+    <string name="p3_settings_theme_dark">Тёмная</string>
+    <string name="p3_settings_theme_amoled">AMOLED (чёрная)</string>
+    <string name="p3_settings_theme_light">Светлая</string>
+    <string name="p3_settings_grid">Колонок в сетке</string>
+    <string name="p3_settings_clock">Показывать часы</string>
+    <string name="p3_settings_default_profile">Профиль по умолчанию</string>
+    <string name="p3_settings_storage">Хранилище</string>
+    <string name="p3_settings_logs">Логи</string>
+    <string name="p3_settings_clear_logs">Очистить логи</string>
+    <string name="p3_settings_about">О сборке</string>
+    <string name="p3_settings_version">Версия</string>
+    <string name="p3_settings_layer">Ядро Winlator</string>
+
+    <!-- Общее -->
+    <string name="p3_ok">ОК</string>
+    <string name="p3_cancel">Отмена</string>
+    <string name="p3_yes">Да</string>
+    <string name="p3_no">Нет</string>
+    <string name="p3_delete">Удалить</string>
+    <string name="p3_close">Закрыть</string>
+    <string name="p3_retry">Повторить</string>
+    <string name="p3_loading">Загрузка…</string>
+    <string name="p3_error">Ошибка</string>
+    <string name="p3_success">Готово</string>
+    <string name="p3_unknown">Неизвестно</string>
+    <string name="p3_never">никогда</string>
+    <string name="p3_playtime_none">Не играли</string>
+    <string name="p3_min">мин</string>
+    <string name="p3_hours">ч</string>
+    <string name="p3_play">Играть</string>
+    <string name="p3_details">Подробнее</string>
+    <string name="p3_apply">Применить</string>
+    <string name="p3_copy">Копировать</string>
+    <string name="p3_share">Поделиться</string>
+    <string name="p3_shortcut">Ярлык</string>
+    <string name="p3_open_in_core">Открыть в ядре</string>
+    <string name="p3_dismiss">Понятно</string>
+</resources>

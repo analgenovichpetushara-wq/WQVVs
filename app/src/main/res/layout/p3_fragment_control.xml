@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Центр управления: точка входа во все модули P3WIN + быстрые действия.
+  Именно этот экран заменяет «бургер-меню» ядра для повседневной работы.
+-->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/p3_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/p3_screen_padding"
+        android:paddingEnd="@dimen/p3_screen_padding"
+        android:paddingTop="@dimen/p3_space_l"
+        android:paddingBottom="@dimen/p3_space_xl">
+
+        <TextView
+            style="@style/P3.Text.Display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/p3_control_title" />
+
+        <!-- Плашка устройства -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="@dimen/p3_space_m"
+            android:background="@drawable/p3_card_background"
+            android:padding="@dimen/p3_space_m">
+
+            <TextView
+                style="@style/P3.Text.LabelCaps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/p3_control_device" />
+
+            <TextView
+                android:id="@+id/P3DeviceModel"
+                style="@style/P3.Text.Subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:id="@+id/P3DeviceGpu"
+                style="@style/P3.Text.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Плитки модулей -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/p3_space_m">
+
+            <LinearLayout
+                android:id="@+id/P3TileGpu"
+                style="@style/P3.Card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/p3_space_s"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <ImageView
+                    style="@style/P3.Icon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/p3_ic_gpu" />
+
+                <TextView
+                    style="@style/P3.Text.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/p3_space_s"
+                    android:textColor="@color/p3_text"
+                    android:text="@string/p3_control_gpu" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/P3TileEngine"
+                style="@style/P3.Card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/p3_space_s"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <ImageView
+                    style="@style/P3.Icon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/p3_ic_engine" />
+
+                <TextView
+                    style="@style/P3.Text.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/p3_space_s"
+                    android:textColor="@color/p3_text"
+                    android:text="@string/p3_control_engine" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/P3TileInput"
+                style="@style/P3.Card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <ImageView
+                    style="@style/P3.Icon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/p3_ic_controller" />
+
+                <TextView
+                    style="@style/P3.Text.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/p3_space_s"
+                    android:textColor="@color/p3_text"
+                    android:text="@string/p3_control_input" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Безопасный режим -->
+        <LinearLayout
+            android:id="@+id/P3SafeModeBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="@dimen/p3_space_m"
+            android:background="@drawable/p3_card_background"
+            android:padding="@dimen/p3_space_m"
+            android:visibility="gone">
+
+            <ImageView
+                style="@style/P3.Icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:tint="@color/p3_warning"
+                android:src="@drawable/p3_ic_warning" />
+
+            <TextView
+                android:id="@+id/P3SafeModeText"
+                style="@style/P3.Text.Body"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/p3_space_s"
+                android:text="@string/p3_control_safe_mode_on" />
+
+            <TextView
+                android:id="@+id/P3SafeModeOff"
+                style="@style/P3.Button.Ghost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/p3_control_safe_mode_off" />
+        </LinearLayout>
+
+        <!-- Действия -->
+        <TextView
+            style="@style/P3.Text.LabelCaps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/p3_space_l"
+            android:text="@string/p3_control_quick_actions" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="@dimen/p3_space_s"
+            android:background="@drawable/p3_card_background">
+
+            <LinearLayout
+                android:id="@+id/P3ActionSettings"
+                style="@style/P3.ListItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/p3_space_m"
+                android:paddingEnd="@dimen/p3_space_m">
+
+                <ImageView
+                    style="@style/P3.Icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/p3_ic_settings" />
+
+                <TextView
+                    style="@style/P3.Text.Body"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/p3_space_m"
+                    android:textColor="@color/p3_text"
+                    android:text="@string/p3_control_settings" />
+            </LinearLayout>
+
+            <View style="@style/P3.Divider" android:layout_width="match_parent" android:layout_height="1dp" />
+
+            <LinearLayout
+                android:id="@+id/P3ActionDiagnostics"
+                style="@style/P3.ListItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/p3_space_m"
+                android:paddingEnd="@dimen/p3_space_m">
+
+                <ImageView
+                    style="@style/P3.Icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/p3_ic_info" />
+
+                <TextView
+                    style="@style/P3.Text.Body"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/p3_space_m"
+                    android:textColor="@color/p3_text"
+                    android:text="@string/p3_control_diagnostics" />
+            </LinearLayout>
+
+            <View style="@style/P3.Divider" android:layout_width="match_parent" android:layout_height="1dp" />
+
+            <LinearLayout
+                android:id="@+id/P3ActionCore"
+                style="@style/P3.ListItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/p3_space_m"
+                android:paddingEnd="@dimen/p3_space_m">
+
+                <ImageView
+                    style="@style/P3.Icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/p3_ic_folder" />
+
+                <TextView
+                    style="@style/P3.Text.Body"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/p3_space_m"
+                    android:textColor="@color/p3_text"
+                    android:text="@string/p3_control_open_core" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

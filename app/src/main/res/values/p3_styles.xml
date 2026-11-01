@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Тема P3WIN наследуется от AppThemeDark ядра: «родные» экраны Winlator
+  и диалоги остаются консистентными, а экраны P3 получают свою палитру.
+-->
+<resources>
+    <style name="Theme.P3Win" parent="AppThemeDark">
+        <item name="android:windowBackground">@color/p3_bg</item>
+        <item name="android:colorBackground">@color/p3_bg</item>
+        <item name="colorAccent">@color/p3_accent</item>
+        <item name="colorPrimary">@color/p3_surface_high</item>
+        <item name="colorPrimaryDark">@color/p3_bg</item>
+        <item name="colorPrimaryText">@color/p3_text</item>
+        <item name="colorSecondaryText">@color/p3_text_secondary</item>
+        <item name="colorPrimarySurface">@color/p3_bg</item>
+        <item name="colorSecondarySurface">@color/p3_surface</item>
+        <item name="colorError">@color/p3_danger</item>
+        <item name="android:statusBarColor">@color/p3_bg</item>
+        <item name="android:navigationBarColor">@color/p3_bg</item>
+    </style>
+
+    <style name="Theme.P3Win.Fullscreen" parent="Theme.P3Win">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="Theme.P3Win.Dialog" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/p3_dialog_background</item>
+        <item name="colorAccent">@color/p3_accent</item>
+        <item name="android:textColorPrimary">@color/p3_text</item>
+        <item name="android:textColorSecondary">@color/p3_text_secondary</item>
+    </style>
+
+    <style name="P3.Text.Display">
+        <item name="android:textSize">@dimen/p3_text_display</item>
+        <item name="android:textColor">@color/p3_text</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="P3.Text.Title">
+        <item name="android:textSize">@dimen/p3_text_title</item>
+        <item name="android:textColor">@color/p3_text</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="P3.Text.Subtitle">
+        <item name="android:textSize">@dimen/p3_text_subtitle</item>
+        <item name="android:textColor">@color/p3_text</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="P3.Text.Body">
+        <item name="android:textSize">@dimen/p3_text_body</item>
+        <item name="android:textColor">@color/p3_text_secondary</item>
+    </style>
+
+    <style name="P3.Text.Caption">
+        <item name="android:textSize">@dimen/p3_text_caption</item>
+        <item name="android:textColor">@color/p3_text_tertiary</item>
+    </style>
+
+    <style name="P3.Text.LabelCaps">
+        <item name="android:textSize">@dimen/p3_text_micro</item>
+        <item name="android:textColor">@color/p3_text_tertiary</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.14</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="P3.Card">
+        <item name="android:background">@drawable/p3_card_background</item>
+        <item name="android:padding">@dimen/p3_space_m</item>
+    </style>
+
+    <style name="P3.Button.Primary" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/p3_button_primary</item>
+        <item name="android:textColor">@color/p3_bg</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/p3_text_body</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingStart">@dimen/p3_space_l</item>
+        <item name="android:paddingEnd">@dimen/p3_space_l</item>
+    </style>
+
+    <style name="P3.Button.Ghost" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:background">@drawable/p3_button_ghost</item>
+        <item name="android:textColor">@color/p3_text</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">@dimen/p3_text_body</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="android:paddingStart">@dimen/p3_space_m</item>
+        <item name="android:paddingEnd">@dimen/p3_space_m</item>
+    </style>
+
+    <style name="P3.Chip" parent="Widget.AppCompat.Button.Small">
+        <item name="android:background">@drawable/p3_chip_background</item>
+        <item name="android:textColor">@color/p3_text_secondary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">@dimen/p3_text_caption</item>
+        <item name="android:minHeight">32dp</item>
+        <item name="android:paddingStart">@dimen/p3_space_m</item>
+        <item name="android:paddingEnd">@dimen/p3_space_m</item>
+    </style>
+
+    <style name="P3.Chip.Active">
+        <item name="android:background">@drawable/p3_chip_background_active</item>
+        <item name="android:textColor">@color/p3_bg</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- ==================== Навигация ==================== -->
+
+    <style name="P3NavItem">
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:paddingTop">@dimen/p3_space_s</item>
+        <item name="android:paddingBottom">@dimen/p3_space_s</item>
+    </style>
+
+    <style name="P3NavIcon">
+        <item name="android:layout_width">@dimen/p3_icon_m</item>
+        <item name="android:layout_height">@dimen/p3_icon_m</item>
+    </style>
+
+    <style name="P3NavLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/p3_text_micro</item>
+        <item name="android:textColor">@color/p3_text_tertiary</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- ==================== Секции ==================== -->
+
+    <style name="P3.SectionTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/p3_text_subtitle</item>
+        <item name="android:textColor">@color/p3_text</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="P3.SectionMore">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/p3_text_caption</item>
+        <item name="android:textColor">@color/p3_accent</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="P3.Icon">
+        <item name="android:layout_width">@dimen/p3_icon_m</item>
+        <item name="android:layout_height">@dimen/p3_icon_m</item>
+        <item name="android:tint">@color/p3_text_secondary</item>
+    </style>
+
+
+    <style name="P3.StatCard">
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@drawable/p3_card_background</item>
+        <item name="android:padding">@dimen/p3_space_m</item>
+        <item name="android:gravity">center_horizontal</item>
+    </style>
+
+    <style name="P3.ListItem">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:paddingTop">@dimen/p3_space_m</item>
+        <item name="android:paddingBottom">@dimen/p3_space_m</item>
+    </style>
+
+    <style name="P3.ToolbarTitle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">@dimen/p3_text_title</item>
+        <item name="android:textColor">@color/p3_text</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="P3.Divider">
+        <item name="android:background">@color/p3_stroke</item>
+    </style>
+
+</resources>

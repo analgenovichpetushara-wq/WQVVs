@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Карточка GPU-драйвера: имя, бейдж совместимости, предупреждение, действия. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginBottom="@dimen/p3_space_s"
+    android:background="@drawable/p3_card_background"
+    android:padding="@dimen/p3_space_m">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/P3DriverName"
+            style="@style/P3.Text.Subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/P3DriverBadge"
+            style="@style/P3.Chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/p3_badge_background"
+            android:textColor="@color/p3_accent" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/P3DriverInfo"
+        style="@style/P3.Text.Caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp" />
+
+    <TextView
+        android:id="@+id/P3DriverWarning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/p3_space_s"
+        android:textSize="@dimen/p3_text_caption"
+        android:textColor="@color/p3_warning"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/p3_space_s">
+
+        <TextView
+            android:id="@+id/P3DriverInstall"
+            style="@style/P3.Button.Ghost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/p3_space_s"
+            android:text="@string/p3_gpu_install" />
+
+        <TextView
+            android:id="@+id/P3DriverActivate"
+            style="@style/P3.Button.Primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/p3_gpu_activate" />
+    </LinearLayout>
+</LinearLayout>

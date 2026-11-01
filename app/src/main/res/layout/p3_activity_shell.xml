@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Каркас P3WIN Shell: контейнер фрагментов + собственная нижняя навигация.
+  Ядро имеет свой MainActivity с NavigationView; мы не заменяем его, а даём
+  отдельный экран, который живёт по «консольным» правилам.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/p3_bg">
+
+    <FrameLayout
+        android:id="@+id/P3Content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <include
+        android:id="@+id/P3BottomNav"
+        layout="@layout/p3_bottom_nav" />
+
+</LinearLayout>

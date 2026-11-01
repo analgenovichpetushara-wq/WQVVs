@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  P3WIN Design System — палитра.
+
+  Логика «консольной» темы: фон и поверхности нейтральны (холодный графит),
+  а акцент — единственный источник цвета. Так акцент читается как сигнал
+  (активный элемент, прогресс, FPS), а не как украшение.
+-->
+<resources>
+    <color name="p3_bg">#07090D</color>
+    <color name="p3_bg_elevated">#0D1117</color>
+    <color name="p3_surface">#121722</color>
+    <color name="p3_surface_high">#1A2130</color>
+    <color name="p3_surface_highest">#232C3D</color>
+
+    <color name="p3_stroke">#1E2635</color>
+    <color name="p3_stroke_strong">#2C394F</color>
+
+    <color name="p3_text">#ECF1F9</color>
+    <color name="p3_text_secondary">#9AA6BA</color>
+    <color name="p3_text_tertiary">#66748C</color>
+
+    <color name="p3_accent">#00E5FF</color>
+    <color name="p3_accent_dim">#00849A</color>
+    <color name="p3_accent_magenta">#FF2D95</color>
+    <color name="p3_accent_lime">#B2FF59</color>
+    <color name="p3_accent_amber">#FFC400</color>
+    <color name="p3_accent_violet">#9D7BFF</color>
+    <color name="p3_danger">#FF4D5E</color>
+    <color name="p3_warning">#FFB020</color>
+    <color name="p3_success">#3DDC84</color>
+
+    <color name="p3_scrim">#CC000000</color>
+    <color name="p3_transparent">#00000000</color>
+    <color name="p3_ripple">#33FFFFFF</color>
+
+    <color name="p3_gradient_top">#1C2534</color>
+    <color name="p3_gradient_bottom">#0B0F16</color>
+</resources>

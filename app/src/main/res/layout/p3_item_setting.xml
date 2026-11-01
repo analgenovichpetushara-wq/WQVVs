@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Универсальная строка настройки: заголовок, описание, переключатель/шеврон. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="?attr/selectableItemBackground"
+    android:paddingTop="@dimen/p3_space_m"
+    android:paddingBottom="@dimen/p3_space_m">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/P3SettingTitle"
+            style="@style/P3.Text.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/p3_text" />
+
+        <TextView
+            android:id="@+id/P3SettingSummary"
+            style="@style/P3.Text.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp" />
+    </LinearLayout>
+
+    <Switch
+        android:id="@+id/P3SettingSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/P3SettingValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/p3_text_caption"
+        android:textColor="@color/p3_accent"
+        android:visibility="gone" />
+</LinearLayout>

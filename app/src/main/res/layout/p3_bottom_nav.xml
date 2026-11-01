@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Нижняя навигация: 4 раздела, крупные зоны нажатия. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/p3_bottom_nav_height"
+    android:orientation="horizontal"
+    android:background="@drawable/p3_bottom_bar_background"
+    android:baselineAligned="false">
+
+    <LinearLayout
+        android:id="@+id/P3TabHome"
+        style="@style/P3NavItem"
+        android:layout_width="0dp"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/P3TabHomeIcon"
+            style="@style/P3NavIcon"
+            android:src="@drawable/p3_ic_home" />
+
+        <TextView
+            android:id="@+id/P3TabHomeLabel"
+            style="@style/P3NavLabel"
+            android:text="@string/p3_nav_home" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/P3TabLibrary"
+        style="@style/P3NavItem"
+        android:layout_width="0dp"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/P3TabLibraryIcon"
+            style="@style/P3NavIcon"
+            android:src="@drawable/p3_ic_library" />
+
+        <TextView
+            android:id="@+id/P3TabLibraryLabel"
+            style="@style/P3NavLabel"
+            android:text="@string/p3_nav_library" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/P3TabContainers"
+        style="@style/P3NavItem"
+        android:layout_width="0dp"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/P3TabContainersIcon"
+            style="@style/P3NavIcon"
+            android:src="@drawable/p3_ic_container" />
+
+        <TextView
+            android:id="@+id/P3TabContainersLabel"
+            style="@style/P3NavLabel"
+            android:text="@string/p3_nav_containers" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/P3TabControl"
+        style="@style/P3NavItem"
+        android:layout_width="0dp"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/P3TabControlIcon"
+            style="@style/P3NavIcon"
+            android:src="@drawable/p3_ic_settings" />
+
+        <TextView
+            android:id="@+id/P3TabControlLabel"
+            style="@style/P3NavLabel"
+            android:text="@string/p3_nav_control" />
+    </LinearLayout>
+
+</LinearLayout>

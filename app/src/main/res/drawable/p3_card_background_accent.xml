@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Карточка «в фокусе»: акцентная обводка. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/p3_surface_high" />
+    <corners android:radius="@dimen/p3_radius_m" />
+    <stroke android:width="1.5dp" android:color="@color/p3_accent" />
+</shape>

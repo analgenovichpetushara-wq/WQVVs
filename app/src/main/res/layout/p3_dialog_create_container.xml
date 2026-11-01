@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Создание контейнера: имя + профиль. Всё остальное — позже, в карточке. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/p3_space_l">
+
+    <TextView
+        style="@style/P3.Text.LabelCaps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/p3_container_name" />
+
+    <EditText
+        android:id="@+id/P3NewContainerName"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="@dimen/p3_space_s"
+        android:background="@drawable/p3_search_background"
+        android:paddingStart="@dimen/p3_space_m"
+        android:paddingEnd="@dimen/p3_space_m"
+        android:inputType="text"
+        android:singleLine="true"
+        android:textColor="@color/p3_text"
+        android:textColorHint="@color/p3_text_tertiary" />
+
+    <TextView
+        style="@style/P3.Text.LabelCaps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/p3_space_l"
+        android:text="@string/p3_container_profile" />
+
+    <TextView
+        style="@style/P3.Text.Caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="@string/p3_container_create_hint" />
+
+    <RadioGroup
+        android:id="@+id/P3ProfileGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/p3_space_s"
+        android:orientation="vertical" />
+
+</LinearLayout>

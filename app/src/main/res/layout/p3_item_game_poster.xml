@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Постер игры в сетке библиотеки. Фиксированная пропорция 2:3. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    android:paddingBottom="@dimen/p3_space_m">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/p3_poster_height"
+        android:background="@drawable/p3_poster_background">
+
+        <ImageView
+            android:id="@+id/P3PosterImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/P3PosterPlaceholder"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_gravity="center"
+            android:src="@drawable/p3_ic_controller"
+            android:tint="@color/p3_text_tertiary" />
+
+        <ImageView
+            android:id="@+id/P3PosterFavorite"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="6dp"
+            android:src="@drawable/p3_ic_star_filled"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/P3PosterTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/p3_space_s"
+        android:textSize="@dimen/p3_text_caption"
+        android:textColor="@color/p3_text"
+        android:textStyle="bold"
+        android:maxLines="2"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/P3PosterMeta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/p3_text_micro"
+        android:textColor="@color/p3_text_tertiary"
+        android:maxLines="1"
+        android:ellipsize="end" />
+</LinearLayout>

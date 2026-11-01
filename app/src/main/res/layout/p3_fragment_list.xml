@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Универсальный каркас экрана модуля: заголовок с кнопкой «назад»,
+  прокручиваемое содержимое с контейнером для карточек.
+  Используется GPU Manager / Engine / Input / Settings — у них одинаковая
+  структура, отличается только содержимое.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/p3_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/p3_top_bar_height"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="@dimen/p3_space_s"
+        android:paddingEnd="@dimen/p3_screen_padding">
+
+        <ImageView
+            android:id="@+id/P3Back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="9dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/p3_ic_back"
+            android:tint="@color/p3_text" />
+
+        <TextView
+            android:id="@+id/P3Title"
+            style="@style/P3.ToolbarTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/p3_space_s" />
+
+        <ImageView
+            android:id="@+id/P3Action"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="9dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/p3_ic_refresh"
+            android:tint="@color/p3_text_secondary" />
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/P3ContentBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/p3_screen_padding"
+            android:paddingEnd="@dimen/p3_screen_padding"
+            android:paddingBottom="@dimen/p3_space_xl" />
+
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

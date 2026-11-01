@@ -89,6 +89,9 @@ def check_imports():
                 if m.group(1):
                     fq = fq.rsplit(".", 1)[0]
                 n += 1
+                # com.winlator.R генерируется AAPT из res/ — файла в src нет.
+                if fq == "com.winlator.R" or fq.startswith("com.winlator.R."):
+                    continue
                 if fq in types:
                     continue
                 if fq.rsplit(".", 1)[0] in types:
@@ -141,7 +144,8 @@ def index_resources():
                     if tag == "string":
                         idx["string"].add(name)
                     elif tag == "style":
-                        idx["style"].add(name)
+                        # В R.java точки в имени стиля заменяются на подчёркивания.
+                        idx["style"].add(name.replace(".", "_"))
                     elif tag == "color":
                         idx["color"].add(name)
                     elif tag in ("string-array", "array", "integer-array"):
@@ -168,6 +172,10 @@ def check_r_refs(idx):
             p = os.path.join(dp, f)
             text = open(p, encoding="utf-8").read()
             for m in rx.finditer(text):
+                # android.R.xxx и подобные — платформенные ресурсы, не наши.
+                prefix = text[max(0, m.start() - 12):m.start()]
+                if re.search(r"(androidx?|[a-z]+)\.$", prefix):
+                    continue
                 kind, name = m.group(1), m.group(2)
                 n += 1
                 if name not in idx.get(kind, set()):
@@ -211,6 +219,35 @@ def check_forbidden():
             if "if (false)" in text or "if(false)" in text:
                 err(f"DEADCODE {rel(p)}: if (false)")
     print("[forbidden] hardcode / dead code")
+
+
+# --- 5b. R-import correctness ---------------------------------------------
+def check_r_imports():
+    """R генерируется в namespace из app/build.gradle (сейчас com.winlator).
+    Каждый файл, использующий R.*, обязан импортировать правильный R."""
+    gradle = open(os.path.join(ROOT, "app/build.gradle"), encoding="utf-8").read()
+    m = re.search(r"namespace\s+['\"]([\w.]+)['\"]", gradle)
+    namespace = m.group(1) if m else "com.winlator"
+    expected_import = f"import {namespace}.R;"
+
+    n = 0
+    for dp, _, fs in os.walk(P3_ROOT):
+        for f in fs:
+            if not f.endswith(".java"):
+                continue
+            p = os.path.join(dp, f)
+            text = open(p, encoding="utf-8").read()
+            uses_r = re.search(r"(?<![\w.])R\.(id|layout|string|drawable|style|color|menu|xml|dimen)\.",
+                               text) is not None
+            if not uses_r:
+                continue
+            n += 1
+            if expected_import not in text and f"{namespace}.R." not in text:
+                err(f"R {rel(p)}: ожидается «{expected_import}» (namespace={namespace})")
+            for wrong in re.findall(r"import\s+(com\.[\w.]+\.R);", text):
+                if wrong != f"{namespace}.R":
+                    err(f"R {rel(p)}: неверный R-класс «{wrong}», namespace={namespace}")
+    print(f"[R-import] {n} файлов, namespace={namespace}")
 
 
 # --- 6. layering -----------------------------------------------------------
@@ -342,6 +379,7 @@ def main():
     check_r_refs(index_resources())
     check_xml()
     check_forbidden()
+    check_r_imports()
     check_layer()
     check_core_calls()
     print()

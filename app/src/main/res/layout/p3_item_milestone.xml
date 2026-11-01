@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Строка достижения на главном экране. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_marginBottom="@dimen/p3_space_s"
+    android:background="@drawable/p3_card_background"
+    android:padding="@dimen/p3_space_m">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/P3MilestoneTitle"
+            style="@style/P3.Text.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/p3_text"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/P3MilestoneDescription"
+            style="@style/P3.Text.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp" />
+
+        <ProgressBar
+            android:id="@+id/P3MilestoneBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_marginTop="@dimen/p3_space_s"
+            android:progressDrawable="@drawable/p3_progress_accent"
+            android:max="100"
+            android:progress="0" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/P3MilestoneCheck"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="@dimen/p3_space_m"
+        android:src="@drawable/p3_ic_check"
+        android:tint="@color/p3_success"
+        android:visibility="gone" />
+</LinearLayout>

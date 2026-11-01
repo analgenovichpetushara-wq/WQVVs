@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioButton xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="44dp"
+    android:textColor="@color/p3_text"
+    android:textSize="@dimen/p3_text_body"
+    android:buttonTint="@color/p3_accent"
+    android:paddingStart="@dimen/p3_space_s" />

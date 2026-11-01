@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Компактная строка игры для горизонтального списка «Недавние». -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="132dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginEnd="@dimen/p3_space_s"
+    android:background="?attr/selectableItemBackgroundBorderless">
+
+    <FrameLayout
+        android:layout_width="132dp"
+        android:layout_height="82dp"
+        android:background="@drawable/p3_poster_background">
+
+        <ImageView
+            android:id="@+id/P3RowImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/P3RowPlaceholder"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_gravity="center"
+            android:src="@drawable/p3_ic_engine"
+            android:tint="@color/p3_accent_dim" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/P3RowTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textSize="@dimen/p3_text_caption"
+        android:textColor="@color/p3_text"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/P3RowMeta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/p3_text_micro"
+        android:textColor="@color/p3_text_tertiary"
+        android:maxLines="1" />
+</LinearLayout>

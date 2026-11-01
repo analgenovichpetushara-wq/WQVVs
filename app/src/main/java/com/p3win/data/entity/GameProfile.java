@@ -51,6 +51,12 @@ public class GameProfile {
 
     public String audioDriverConfig = "";
 
+    /**
+     * Аргументы командной строки, дописываемые к запуску.
+     * Ядро читает их из ярлыка как {@code execArgs}.
+     */
+    public String arguments = "";
+
     public long createdAt;
 
     public long updatedAt;

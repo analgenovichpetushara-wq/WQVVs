@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Контейнеры: карточки с профилем, размером и количеством игр. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/p3_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="@dimen/p3_screen_padding"
+        android:paddingEnd="@dimen/p3_screen_padding"
+        android:paddingTop="@dimen/p3_space_l"
+        android:paddingBottom="@dimen/p3_space_m">
+
+        <TextView
+            style="@style/P3.Text.Display"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/p3_containers_title" />
+
+        <ImageView
+            android:id="@+id/P3ContainersImport"
+            style="@style/P3.Icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="9dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/p3_ic_import" />
+
+        <ImageView
+            android:id="@+id/P3ContainersAdd"
+            style="@style/P3.Icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="9dp"
+            android:layout_marginStart="@dimen/p3_space_xs"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/p3_ic_add" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/P3ContainersFreeSpace"
+        style="@style/P3.Text.Caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/p3_screen_padding"
+        android:paddingEnd="@dimen/p3_screen_padding"
+        android:paddingBottom="@dimen/p3_space_m" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/P3ContainersList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="@dimen/p3_screen_padding"
+            android:paddingEnd="@dimen/p3_screen_padding"
+            android:paddingBottom="@dimen/p3_space_l"
+            android:clipToPadding="false"
+            android:scrollbars="none" />
+
+        <LinearLayout
+            android:id="@+id/P3ContainersEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="@dimen/p3_space_xl"
+            android:visibility="gone">
+
+            <ImageView
+                style="@style/P3.Icon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/p3_ic_container" />
+
+            <TextView
+                style="@style/P3.Text.Subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/p3_space_m"
+                android:text="@string/p3_containers_empty" />
+
+            <TextView
+                style="@style/P3.Text.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="@dimen/p3_space_s"
+                android:text="@string/p3_containers_empty_hint" />
+
+            <TextView
+                android:id="@+id/P3ContainersEmptyAction"
+                style="@style/P3.Button.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/p3_space_l"
+                android:text="@string/p3_containers_create" />
+        </LinearLayout>
+    </FrameLayout>
+
+</LinearLayout>

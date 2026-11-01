@@ -255,6 +255,30 @@ public final class CoreContainerLink {
         return root != null ? root.getUsableSpace() : 0L;
     }
 
+    /**
+     * Готова ли система к запуску контейнеров.
+     *
+     * <p>Проверяется именно rootfs (Wine + Box64 + XServer), а не «установлено
+     * приложение»: до первого запуска {@code RootFSInstaller} контейнеров нет,
+     * а экран Shell должен показать «настроить окружение», а не пустой список
+     * с непонятной ошибкой.
+     */
+    public boolean isSystemReady() {
+        try {
+            RootFS rootFS = RootFS.find(context);
+            return rootFS.isValid()
+                    && rootFS.getVersion() >= com.winlator.xenvironment.RootFSInstaller.LATEST_VERSION;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /** Открыть штатный установщик rootfs (экран ядра сам вызовет installIfNeeded). */
+    public void openSystemInstaller(android.app.Activity activity) {
+        if (activity == null) return;
+        activity.startActivity(new android.content.Intent(activity, com.winlator.MainActivity.class));
+    }
+
     // ------------------------------------------------------------------
     // Утилиты
     // ------------------------------------------------------------------

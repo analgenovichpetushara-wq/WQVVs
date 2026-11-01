@@ -241,4 +241,5 @@
     <string name="p3_setup_hint_failed">Установка не завершена — попробуйте снова</string>
     <string name="p3_setup_need_permission">Разрешите доступ к файлам и повторите</string>
     <string name="p3_setup_done">Wine-образ установлен</string>
+    <string name="p3_container_need_setup">Сначала установите Wine-образ</string>
 </resources>

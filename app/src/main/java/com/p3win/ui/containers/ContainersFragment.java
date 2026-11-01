@@ -16,6 +16,8 @@ import com.p3win.core.integration.CoreContainerLink;
 import com.p3win.core.profile.ContainerProfiles;
 import com.p3win.data.entity.ContainerMeta;
 import com.p3win.ui.shell.P3Fragment;
+import com.p3win.ui.shell.P3Navigator;
+import com.p3win.ui.shell.SetupFragment;
 import com.p3win.ui.widget.P3Toast;
 import com.p3win.util.P3Format;
 
@@ -90,7 +92,19 @@ public class ContainersFragment extends P3Fragment implements ContainerAdapter.L
 
     private void createContainer() {
         if (getContext() == null) return;
-        new CreateContainerDialog(requireContext(), this::load).show();
+
+        // Контейнер создаётся распаковкой pattern внутри rootfs. Без образа
+        // ядро упадёт на отсутствующем каталоге, поэтому сначала проверяем
+        // готовность системы и ведём в мастер.
+        final android.content.Context context = requireContext().getApplicationContext();
+        async(() -> new CoreContainerLink(context).isSystemReady(), ready -> {
+            if (Boolean.FALSE.equals(ready)) {
+                P3Toast.show(getContext(), getString(R.string.p3_container_need_setup));
+                P3Navigator.push(requireActivity(), new SetupFragment());
+                return;
+            }
+            new CreateContainerDialog(requireContext(), this::load).show();
+        });
     }
 
     @Override

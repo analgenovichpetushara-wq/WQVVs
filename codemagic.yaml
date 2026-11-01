@@ -1,1 +1,34 @@
-
+workflows:
+  android-free-build:
+    name: Android Release Build
+    max_build_duration: 30
+    # Используем Linux для экономии бесплатных минут
+    instance_type: linux
+    environment:
+      flutter: stable
+      # Если вы используете Java/Kotlin без Flutter, 
+      # этот блок можно удалить или настроить версию Java
+      groups:
+        - keystore_credentials # Имя группы для секретов (если будете настраивать подпись)
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+    scripts:
+      - name: Set up local.properties (if needed)
+        script: |
+          echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+      - name: Get dependencies
+        script: |
+          flutter pub get
+      - name: Build Android APK
+        script: |
+          # Собираем универсальный APK. 
+          # Чтобы собрать App Bundle для Google Play, замените 'apk' на 'appbundle'
+          flutter build apk --release
+    artifacts:
+      - build/app/outputs/flutter-apk/app-release.apk
+      # Если собираете appbundle, раскомментируйте строку ниже:
+      # - build/app/outputs/bundle/release/app-release.aab

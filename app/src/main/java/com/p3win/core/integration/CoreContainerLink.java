@@ -201,6 +201,7 @@ public final class CoreContainerLink {
                 meta.createdAt = System.currentTimeMillis();
                 database.containerDao().upsert(meta);
             }
+            com.p3win.core.session.MilestoneEngine.refresh(context);
             P3Log.info(TAG, "Создан контейнер #" + holder[0].id + " «" + holder[0].getName() + "»");
         }
         return holder[0];

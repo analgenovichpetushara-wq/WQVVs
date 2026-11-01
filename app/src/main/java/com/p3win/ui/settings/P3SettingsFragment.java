@@ -1,6 +1,5 @@
 package com.p3win.ui.settings;
 
-import android.app.AlertDialog;
 import android.widget.LinearLayout;
 
 import com.p3win.P3Application;
@@ -184,7 +183,7 @@ public class P3SettingsFragment extends P3ModuleFragment {
         String tail = P3Log.tail(log, 120);
         if (tail.isEmpty()) tail = "Лог пуст";
 
-        new AlertDialog.Builder(requireContext(), R.style.Theme_P3Win_Dialog)
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext(), R.style.Theme_P3Win_Dialog)
                 .setTitle(getString(R.string.p3_settings_logs))
                 .setMessage(tail)
                 .setPositiveButton(R.string.p3_ok, null)

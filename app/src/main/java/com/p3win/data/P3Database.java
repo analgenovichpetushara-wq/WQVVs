@@ -37,8 +37,21 @@ public class P3Database extends SQLiteOpenHelper {
 
     private static P3Database instance;
 
+    private Context appContext;
+
     private P3Database(Context context) {
         super(context.getApplicationContext(), DB_NAME, null, DB_VERSION);
+        this.appContext = context.getApplicationContext();
+    }
+
+    /**
+     * Контекст приложения, с которым открыта база.
+     *
+     * <p>Нужен фоновым задачам, у которых нет Activity: пересчёт достижений
+     * после закрытия сессии идёт уже без экрана.
+     */
+    public Context context() {
+        return appContext;
     }
 
     public static synchronized P3Database get(Context context) {

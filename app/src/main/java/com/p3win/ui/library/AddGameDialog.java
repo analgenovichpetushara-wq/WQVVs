@@ -89,7 +89,11 @@ final class AddGameDialog {
             game.executable = executable;
             game.shortcutName = fileName;
             game.addedAt = System.currentTimeMillis();
-            return dao.insert(game);
+            long id = dao.insert(game);
+            // «Коллекционер» должен засчитаться сразу: пользователь добавил
+            // игру, а не «когда-нибудь потом откроет главную».
+            com.p3win.core.session.MilestoneEngine.refresh(context);
+            return id;
         }, id -> {
             if (id != null && id > 0) {
                 P3Toast.show(context, context.getString(R.string.p3_success));
@@ -136,7 +140,9 @@ final class AddGameDialog {
             game.containerId = container.id;
             game.executable = executable;
             game.addedAt = System.currentTimeMillis();
-            return app.repository().games().insert(game);
+            long id = app.repository().games().insert(game);
+            com.p3win.core.session.MilestoneEngine.refresh(context);
+            return id;
         }, id -> {
             if (id != null && id > 0) {
                 P3Toast.show(context, context.getString(R.string.p3_success));

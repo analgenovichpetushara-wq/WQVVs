@@ -200,6 +200,10 @@ public final class SessionTracker {
                 if (!reason.isEmpty()) dao.setFailureReason(id, reason);
                 if (gameId > 0) db.gameDao().addPlaytime(gameId, active);
                 if (containerId > 0) db.containerDao().addPlaytime(containerId, active);
+
+                // Достижения пересчитываются здесь, а не на главной: веха
+                // «10 часов в играх» становится правдой именно сейчас.
+                MilestoneEngine.refresh(db.context());
             } catch (Throwable t) {
                 P3Log.error(TAG, "Не удалось закрыть сессию " + id, t);
             }

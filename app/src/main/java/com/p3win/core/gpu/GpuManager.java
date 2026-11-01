@@ -162,6 +162,9 @@ public final class GpuManager {
                 dao.setActive(driver.driverId, driver.version);
             }
 
+            // Достижение «Свой драйвер»: пользователь осознанно сменил GPU-стек.
+            com.p3win.core.session.MilestoneEngine.refresh(context);
+
             P3Log.info(TAG, "Активирован драйвер " + driver.displayName
                     + (containerCore != null ? " для контейнера #" + containerCore.id : ""));
             return null;

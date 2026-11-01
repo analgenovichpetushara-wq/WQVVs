@@ -14,6 +14,7 @@ P3WIN static checker — замена компилятору в среде бе�
 Запуск: python3 scripts/p3_static_check.py
 Код возврата: 0 — чисто, 1 — есть ошибки.
 """
+import collections
 import os
 import re
 import sys
@@ -435,6 +436,91 @@ def check_doc_refs():
     print(f"[docs] ссылки на скрипты проверены ({len(missing)} отсутствуют)")
 
 
+# --- 5e. Арность вызовов внутри P3 ----------------------------------------
+def check_p3_arity():
+    """
+    Проверяет число аргументов у вызовов методов собственных классов P3.
+
+    Зачем: переименование сигнатуры (например, onSessionActivityCreated
+    получил четвёртый параметр) ломает сборку, но старый анализатор этого не
+    видел — проверялись только члены классов ядра. Здесь строится индекс
+    «класс → метод → допустимая арность» по всему com/p3win и сверяются
+    вызовы через переменные и статические обращения.
+
+    Ограничения осознанные: наследование не разворачивается, перегрузки
+    считаются по множеству допустимых арностей, вызовы super/this не
+    проверяются. Цель — грубая сетка, а не компилятор.
+    """
+    try:
+        import javalang
+    except ImportError:
+        warn("javalang не установлен — арность вызовов P3 не проверена")
+        return
+
+    types = collections.defaultdict(lambda: collections.defaultdict(set))
+    parsed = []
+    for dp, _, fs in os.walk(P3_ROOT):
+        for f in fs:
+            if not f.endswith(".java"):
+                continue
+            p = os.path.join(dp, f)
+            try:
+                tree = javalang.parse.parse(open(p, encoding="utf-8").read())
+            except Exception:
+                continue
+            parsed.append((p, tree))
+            for _, node in tree:
+                if not isinstance(node, javalang.tree.ClassDeclaration):
+                    continue
+                for _, m in node:
+                    if isinstance(m, javalang.tree.MethodDeclaration):
+                        params = m.parameters or []
+                        types[node.name][m.name].add(
+                            (len(params), any(getattr(x, "varargs", False) for x in params)))
+
+    skip = {
+        "onCreate", "onDestroy", "onResume", "onPause", "onStart", "onStop",
+        "onSaveInstanceState", "onCreateView", "onViewCreated", "onActivityCreated",
+        "onDestroyView", "onAttach", "onDetach", "onRequestPermissionsResult",
+        "onActivityResult", "onBackPressed", "onConfigurationChanged", "onClick",
+    }
+
+    n = 0
+    for p, tree in parsed:
+        vars_ = {}
+        for _, node in tree:
+            if not isinstance(node, (javalang.tree.LocalVariableDeclaration,
+                                     javalang.tree.FieldDeclaration)):
+                continue
+            tnode = node.type
+            tname = None
+            if isinstance(tnode, javalang.tree.ReferenceType):
+                tname = tnode.name.split(".")[-1]
+            if tname in types:
+                for d in node.declarators:
+                    vars_[d.name] = tname
+
+        for _, node in tree:
+            if not isinstance(node, javalang.tree.MethodInvocation):
+                continue
+            q = node.qualifier
+            cls = None
+            if q and q.split(".")[-1] in vars_:
+                cls = vars_[q.split(".")[-1]]
+            elif q and q.split(".")[-1] in types:
+                cls = q.split(".")[-1]
+            if not cls or node.member not in types[cls] or node.member in skip:
+                continue
+            arity = len(node.arguments or [])
+            allowed = types[cls][node.member]
+            n += 1
+            if not any(a == arity or (v and arity >= a) for a, v in allowed):
+                line = node.position.line if node.position else "?"
+                err(f"ARITY {rel(p)}:{line}: {cls}.{node.member} вызван с {arity} арг., "
+                    f"объявлено: {sorted(a for a, _ in allowed)}")
+    print(f"[arity] {n} вызовов методов P3")
+
+
 def main():
     check_syntax()
     check_imports()
@@ -446,6 +532,7 @@ def main():
     check_core_calls()
     check_dialog_theme()
     check_doc_refs()
+    check_p3_arity()
     print()
     if warnings:
         print(f"ПРЕДУПРЕЖДЕНИЯ ({len(warnings)}):")

@@ -197,4 +197,13 @@
     <string name="p3_crash_back">Вернуться в библиотеку</string>
     <string name="p3_crash_unknown">В логе нет характерных признаков сбоя. Если игра закрывается сразу при запуске — попробуйте профиль «Совместимость» и разрешение 1280x720.</string>
     <string name="p3_crash_notice">Прошлый запуск завершился аварийно</string>
+
+    <!-- Input: офлайн-библиотека раскладок -->
+    <string name="p3_input_library">Библиотека раскладок</string>
+    <string name="p3_input_library_summary">В комплекте: %1$d раскладок — импорт без интернета</string>
+    <string name="p3_input_library_import">Импорт</string>
+    <string name="p3_input_library_all">Импортировать все новые</string>
+    <string name="p3_input_library_empty">Библиотека пуста</string>
+    <string name="p3_input_library_done">Импортировано раскладок: %1$d</string>
+    <string name="p3_input_library_none">Новых раскладок нет</string>
 </resources>

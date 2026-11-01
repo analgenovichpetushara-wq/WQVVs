@@ -106,4 +106,20 @@ public class InputManagerFragment extends P3ModuleFragment implements InputLayou
         body.removeAllViews();
         buildBody(body);
     }
+
+    /**
+     * Действие в шапке модуля — быстрый доступ к библиотеке раскладок.
+     *
+     * <p>Дублирует строку в списке раскладок осознанно: список может быть
+     * длинным, а импорт нужен чаще всего именно в момент настройки.
+     */
+    @Override
+    protected int actionIcon() {
+        return R.drawable.p3_ic_import;
+    }
+
+    @Override
+    protected void onAction() {
+        if (layoutsSection != null) layoutsSection.showLibrary();
+    }
 }

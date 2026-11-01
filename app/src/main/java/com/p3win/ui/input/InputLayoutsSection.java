@@ -64,6 +64,7 @@ final class InputLayoutsSection {
 
             if (bundle.profiles.isEmpty()) {
                 parent.addView(note(context.getString(R.string.p3_input_new_layout)));
+                addLibraryRow();
                 return;
             }
 
@@ -83,6 +84,70 @@ final class InputLayoutsSection {
                 row.setOnClickListener(v -> openEditor(profile));
                 parent.addView(row);
             }
+
+            addLibraryRow();
+        });
+    }
+
+    /**
+     * Строка «Библиотека раскладок» с офлайн-импортом.
+     *
+     * <p>Штатный экран ядра тянет раскладки только из сети. Здесь те же файлы
+     * приезжают из APK — по одному или все сразу. Импорт идёт через
+     * {@code InputControlsManager}, поэтому новый профиль сразу виден и в
+     * редакторе ядра, и в списке выше.
+     */
+    private void addLibraryRow() {
+        View row = LayoutInflater.from(context)
+                .inflate(R.layout.p3_item_setting, parent, false);
+
+        ((TextView) row.findViewById(R.id.P3SettingTitle))
+                .setText(R.string.p3_input_library);
+
+        TextView summary = row.findViewById(R.id.P3SettingSummary);
+        summary.setText(context.getString(R.string.p3_input_library_summary,
+                com.p3win.core.input.LayoutLibrary.available(context).size()));
+        summary.setVisibility(View.VISIBLE);
+
+        TextView value = row.findViewById(R.id.P3SettingValue);
+        value.setVisibility(View.VISIBLE);
+        value.setText(R.string.p3_input_library_import);
+
+        row.setOnClickListener(v -> showLibrary());
+        parent.addView(row);
+    }
+
+    /** Диалог выбора раскладки из APK. */
+    void showLibrary() {
+        final java.util.List<String> names = com.p3win.core.input.LayoutLibrary.available(context);
+        if (names.isEmpty()) {
+            P3Toast.show(context, context.getString(R.string.p3_input_library_empty));
+            return;
+        }
+
+        final String[] items = new String[names.size() + 1];
+        items[0] = context.getString(R.string.p3_input_library_all);
+        for (int i = 0; i < names.size(); i++) items[i + 1] = names.get(i);
+
+        new androidx.appcompat.app.AlertDialog.Builder(context, R.style.Theme_P3Win_Dialog)
+                .setTitle(R.string.p3_input_library)
+                .setItems(items, (dialog, which) -> importFromLibrary(which == 0 ? null : names.get(which - 1)))
+                .setNegativeButton(R.string.p3_cancel, (d, w) -> d.dismiss())
+                .show();
+    }
+
+    private void importFromLibrary(final String fileName) {
+        TaskRunner.run(() -> {
+            if (fileName == null) {
+                return com.p3win.core.input.LayoutLibrary.importMissing(context);
+            }
+            return com.p3win.core.input.LayoutLibrary.importOne(context, fileName) != null ? 1 : 0;
+        }, imported -> {
+            int count = imported != null ? imported : 0;
+            P3Toast.show(context, count > 0
+                    ? context.getString(R.string.p3_input_library_done, count)
+                    : context.getString(R.string.p3_input_library_none));
+            if (count > 0 && listener != null) listener.onLayoutsChanged();
         });
     }
 

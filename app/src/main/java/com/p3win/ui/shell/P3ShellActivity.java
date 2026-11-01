@@ -219,10 +219,17 @@ public class P3ShellActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        // 1. Открытый экран модуля закрываем первым: иначе «назад» из GPU Manager
+        //    перескакивал бы на вкладку «Главная», оставляя модуль в стеке.
+        if (P3Navigator.pop(this)) return;
+
+        // 2. Внутри вкладок «назад» возвращает на главную, а не закрывает приложение:
+        //    закрытие оболочки всегда должно быть осознанным (двойное нажатие).
         if (currentTab != TAB_HOME) {
             selectTab(TAB_HOME, true);
             return;
         }
+
         super.onBackPressed();
     }
 }

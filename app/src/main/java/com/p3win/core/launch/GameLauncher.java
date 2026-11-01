@@ -62,9 +62,12 @@ public final class GameLauncher {
             }
 
             // 2. Записать пофайловые оверрайды профиля.
+            //    В безопасном режиме GPU-часть профиля отбрасывается: именно
+            //    драйвер чаще всего и приводит к чёрному экрану, а игра должна
+            //    запуститься хотя бы на штатном Turnip из контейнера.
             if (profile != null) {
                 Shortcut shortcut = new Shortcut(container, shortcutFile);
-                ShortcutWriter.applyProfile(shortcut, profile);
+                ShortcutWriter.applyProfile(shortcut, safeProfile(profile));
             }
 
             // 3. Собрать интент так, как это делает само ядро.
@@ -101,6 +104,40 @@ public final class GameLauncher {
             P3Log.error(TAG, "Не удалось запустить контейнер", t);
             return "Ошибка запуска контейнера";
         }
+    }
+
+    /**
+     * Копия профиля без GPU-оверрайдов — для безопасного режима.
+     *
+     * <p>Копия, а не правка на месте: профиль в базе остаётся нетронутым,
+     * и после выключения безопасного режима запуск снова идёт с ним.
+     * Сбрасываются только драйвер и его конфиг; DXVK, Box64 и разрешение
+     * не трогаем — они не приводят к «приложение закрылось».
+     */
+    private static GameProfile safeProfile(GameProfile source) {
+        if (!com.p3win.core.prefs.P3Prefs.safeMode()) return source;
+
+        GameProfile copy = new GameProfile();
+        copy.id = source.id;
+        copy.name = source.name;
+        copy.dxWrapper = source.dxWrapper;
+        copy.dxWrapperConfig = source.dxWrapperConfig;
+        copy.screenSize = source.screenSize;
+        copy.box64Preset = source.box64Preset;
+        copy.envVars = source.envVars;
+        copy.fpsLimit = source.fpsLimit;
+        copy.fsrEnabled = source.fsrEnabled;
+        copy.fsrSharpness = source.fsrSharpness;
+        copy.controlsProfileId = source.controlsProfileId;
+        copy.dinputMapperType = source.dinputMapperType;
+        copy.inputLayout = source.inputLayout;
+        copy.forceFullscreen = source.forceFullscreen;
+        copy.audioDriver = source.audioDriver;
+        copy.audioDriverConfig = source.audioDriverConfig;
+        copy.arguments = source.arguments;
+        // graphicsDriver / graphicsDriverConfig намеренно пустые.
+        P3Log.warn(TAG, "Безопасный режим: GPU-оверрайды профиля «" + source.name + "» отключены");
+        return copy;
     }
 
     /**

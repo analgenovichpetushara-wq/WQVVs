@@ -42,6 +42,7 @@
     <string name="p3_library_play">Играть</string>
     <string name="p3_library_edit">Изменить</string>
     <string name="p3_library_profile">Профиль запуска</string>
+    <string name="p3_library_stats">Статистика</string>
     <string name="p3_library_remove">Убрать из библиотеки</string>
     <string name="p3_library_add">Добавить игру</string>
     <string name="p3_library_import_shortcuts">Импорт ярлыков контейнера</string>
@@ -184,4 +185,16 @@
     <string name="p3_shortcut">Ярлык</string>
     <string name="p3_open_in_core">Открыть в ядре</string>
     <string name="p3_dismiss">Понятно</string>
+
+    <!-- Fail-Safe: экран разбора сбоя -->
+    <string name="p3_crash_title">Игра закрылась</string>
+    <string name="p3_crash_cause">Вероятная причина</string>
+    <string name="p3_crash_recovery">Что сделать</string>
+    <string name="p3_crash_recovery_hint">Поменяйте драйвер или верните предыдущий в GPU Manager. Если игра не запускалась ни разу — проверьте лог ниже.</string>
+    <string name="p3_crash_open_gpu">Открыть GPU Manager</string>
+    <string name="p3_crash_open_diagnostics">Диагностика устройства</string>
+    <string name="p3_crash_log">Последние строки лога</string>
+    <string name="p3_crash_back">Вернуться в библиотеку</string>
+    <string name="p3_crash_unknown">В логе нет характерных признаков сбоя. Если игра закрывается сразу при запуске — попробуйте профиль «Совместимость» и разрешение 1280x720.</string>
+    <string name="p3_crash_notice">Прошлый запуск завершился аварийно</string>
 </resources>

@@ -32,6 +32,8 @@ public final class P3Prefs {
     public static final String KEY_SAFE_MODE = "p3_safe_mode";
     public static final String KEY_FIRST_RUN_DONE = "p3_first_run_done";
     public static final String KEY_LAST_TAB = "p3_last_tab";
+    public static final String KEY_PENDING_CRASH_GAME = "p3_pending_crash_game";
+    public static final String KEY_PENDING_CRASH_LOG = "p3_pending_crash_log";
 
     public static final int THEME_DARK = 0;
     public static final int THEME_AMOLED = 1;
@@ -179,5 +181,46 @@ public final class P3Prefs {
 
     public static void setSafeMode(boolean enabled) {
         prefs.edit().putBoolean(KEY_SAFE_MODE, enabled).apply();
+    }
+
+    // --- Непрочитанный отчёт о сбое ---------------------------------------
+
+    /**
+     * Запомнить, что нужно показать разбор сбоя.
+     *
+     * <p>Почему через настройки, а не {@code startActivity} из Application:
+     * после смерти игрового Activity приложение уже в фоне, и Android 10+
+     * запрещает фоновый старт экранов. Флаг переживает запрет: пользователь
+     * сам возвращается в P3WIN, и Shell открывает разбор в этот момент.
+     */
+    public static void setPendingCrash(String game, String logPath) {
+        prefs.edit()
+                .putString(KEY_PENDING_CRASH_GAME, game != null ? game : "")
+                .putString(KEY_PENDING_CRASH_LOG, logPath != null ? logPath : "")
+                .apply();
+    }
+
+    /**
+     * Забрать отчёт о сбое (и очистить флаг).
+     *
+     * @return {@code {игра, путь к логу}} или null, если сбоя не было
+     */
+    public static String[] takePendingCrash() {
+        if (prefs == null) return null;
+        String log = prefs.getString(KEY_PENDING_CRASH_LOG, "");
+        if (log == null || log.isEmpty()) return null;
+        String game = prefs.getString(KEY_PENDING_CRASH_GAME, "");
+        prefs.edit()
+                .remove(KEY_PENDING_CRASH_LOG)
+                .remove(KEY_PENDING_CRASH_GAME)
+                .apply();
+        return new String[]{game != null ? game : "", log};
+    }
+
+    /** Есть ли непрочитанный отчёт: для баннера на главной. */
+    public static boolean hasPendingCrash() {
+        if (prefs == null) return false;
+        String log = prefs.getString(KEY_PENDING_CRASH_LOG, "");
+        return log != null && !log.isEmpty();
     }
 }

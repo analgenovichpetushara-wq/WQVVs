@@ -43,6 +43,7 @@ public final class SessionTracker {
     private int containerId;
     private long gameId;
     private String executable = "";
+    private String pendingFailureReason = "";
 
     private SessionTracker() {
     }
@@ -56,11 +57,22 @@ public final class SessionTracker {
     // ------------------------------------------------------------------
 
     public void onSessionActivityCreated(Activity activity, int containerId, String shortcutPath) {
+        onSessionActivityCreated(activity, containerId, shortcutPath, "");
+    }
+
+    /**
+     * @param profileSnapshot условия запуска одной строкой: драйвер, DXVK,
+     *                        Box64-пресет, разрешение, безопасный режим.
+     *                        Хранится в сессии, чтобы через месяц можно было
+     *                        понять, «на чём именно» упала игра.
+     */
+    public void onSessionActivityCreated(Activity activity, int containerId, String shortcutPath,
+                                         String profileSnapshot) {
         closeStaleSession();
         this.containerId = containerId;
         this.executable = shortcutPath != null ? shortcutPath : "";
         this.gameId = resolveGameId(shortcutPath);
-        begin(activity);
+        begin(activity, profileSnapshot);
     }
 
     public void onSessionActivityStarted(Activity activity) {
@@ -104,6 +116,10 @@ public final class SessionTracker {
     // ------------------------------------------------------------------
 
     private void begin(Activity activity) {
+        begin(activity, "");
+    }
+
+    private void begin(Activity activity, final String profileSnapshot) {
         startedAt = System.currentTimeMillis();
         activeAccumMs = 0;
         lastResumeAt = startedAt;
@@ -126,6 +142,7 @@ public final class SessionTracker {
                 session.crashed = false;
                 session.exitCode = 0;
                 session.activeMs = 0;
+                session.profileSnapshot = profileSnapshot != null ? profileSnapshot : "";
                 long id = db.sessionDao().insert(session);
                 currentSessionId = id;
                 P3Log.info(TAG, "Сессия #" + id + " начата (container=" + containerId
@@ -151,8 +168,21 @@ public final class SessionTracker {
         });
     }
 
+    /**
+     * Причина сбоя, которую нужно записать в текущую сессию.
+     *
+     * <p>Вызывается <b>до</b> {@link #onSessionActivityDestroyed}: разбор лога
+     * идёт, пока файл ещё открыт, а запись в базу — уже из {@code finish()}.
+     * Так в статистике остаётся не только «упало», но и «почему».
+     */
+    public void setPendingFailureReason(String reason) {
+        pendingFailureReason = reason != null ? reason : "";
+    }
+
     private void finish(Activity activity) {
         final long id = currentSessionId;
+        final String reason = pendingFailureReason;
+        pendingFailureReason = "";
         final long end = System.currentTimeMillis();
         final long duration = startedAt > 0 ? end - startedAt : 0;
         final long active = activeAccumMs;
@@ -167,6 +197,7 @@ public final class SessionTracker {
             try {
                 SessionDao dao = db.sessionDao();
                 dao.finish(id, end, duration, active, wasCrash, 0);
+                if (!reason.isEmpty()) dao.setFailureReason(id, reason);
                 if (gameId > 0) db.gameDao().addPlaytime(gameId, active);
                 if (containerId > 0) db.containerDao().addPlaytime(containerId, active);
             } catch (Throwable t) {

@@ -37,6 +37,11 @@ public class P3ShellActivity extends AppCompatActivity {
     public static final int TAB_CONTAINERS = 2;
     public static final int TAB_CONTROL = 3;
 
+    /** Открыть Shell сразу на экране разбора сбоя. */
+    public static final String EXTRA_SHOW_CRASH = "p3_show_crash";
+    public static final String EXTRA_CRASH_GAME = "p3_crash_game";
+    public static final String EXTRA_CRASH_LOG = "p3_crash_log";
+
     private int currentTab = -1;
     private View[] tabViews;
     private ImageView[] tabIcons;
@@ -55,6 +60,46 @@ public class P3ShellActivity extends AppCompatActivity {
         if (startTab < TAB_HOME || startTab > TAB_CONTROL) startTab = TAB_HOME;
 
         selectTab(startTab, false);
+
+        if (getIntent() != null && getIntent().getBooleanExtra(EXTRA_SHOW_CRASH, false)) {
+            // Отчёт о сбое показываем один раз: повторный запуск Shell должен
+            // открывать последнюю вкладку, а не старый разбор.
+            showCrashReport(getIntent().getStringExtra(EXTRA_CRASH_GAME),
+                    getIntent().getStringExtra(EXTRA_CRASH_LOG));
+            getIntent().removeExtra(EXTRA_SHOW_CRASH);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Если игра упала, пока P3WIN был в фоне, показать разбор нужно именно
+        // здесь: фоновый startActivity на Android 10+ запрещён, а флаг в
+        // настройках доживает до возврата пользователя.
+        // takePendingCrash() сам очищает флаг, поэтому разбор показывается
+        // ровно один раз — повторный возврат в Shell его не повторит.
+        // Не перекрываем открытый экран модуля: если пользователь сидит в
+        // GPU Manager, отчёт подождёт следующего возврата в Shell.
+        if (P3Navigator.depth(this) > 0) return;
+        String[] pending = P3Prefs.takePendingCrash();
+        if (pending != null) showCrashReport(pending[0], pending[1]);
+    }
+
+    /**
+     * Экран разбора прошлого сбоя.
+     *
+     * <p>Показывается поверх Shell, чтобы пользователь не остался один на один
+     * с внезапно опустевшим экраном после падения игры: причина в логе уже
+     * есть, надо только её прочитать.
+     */
+    private void showCrashReport(String gameTitle, String log) {
+        String game = gameTitle;
+        String logPath = log;
+        if (logPath == null || logPath.isEmpty()) {
+            java.io.File log = com.p3win.core.log.P3Log.lastGameLog();
+            logPath = log != null ? log.getAbsolutePath() : "";
+        }
+        P3Navigator.push(this, CrashReportFragment.create(game, logPath));
     }
 
     private void bindNavigation() {

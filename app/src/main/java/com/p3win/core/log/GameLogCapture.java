@@ -100,6 +100,11 @@ public final class GameLogCapture {
         return activeCallback != null;
     }
 
+    /** Файл текущего (или последнего) перехвата — читается экраном сбоя. */
+    public static File activeFile() {
+        return activeFile;
+    }
+
     /** Последние строки лога игры — для экрана «почему закрылось». */
     public static String tail(int lines) {
         return P3Log.tail(activeFile, lines);

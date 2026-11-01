@@ -102,6 +102,17 @@ public class P3Application extends Application {
         return repository;
     }
 
+    /**
+     * Последний игровой экран, если игра ещё не была закрыта штатно.
+     *
+     * <p>Нужен экрану «игра закрылась»: он показывает, что именно запускалось.
+     * Ссылка слабая — держать Activity после её уничтожения нельзя.
+     */
+    public static Activity lastGameActivity() {
+        java.lang.ref.WeakReference<Activity> ref = SessionTrackingCallbacks.lastGameActivity;
+        return ref != null ? ref.get() : null;
+    }
+
     private String versionName() {
         try {
             return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
@@ -124,6 +135,9 @@ public class P3Application extends Application {
      */
     private static final class SessionTrackingCallbacks implements ActivityLifecycleCallbacks {
 
+        /** Последний запущенный игровой экран: по нему строится отчёт о сбое. */
+        private static java.lang.ref.WeakReference<Activity> lastGameActivity;
+
         private static boolean isGameActivity(Activity activity) {
             return activity != null && CORE_GAME_ACTIVITY.equals(activity.getClass().getName());
         }
@@ -135,7 +149,9 @@ public class P3Application extends Application {
                     ? activity.getIntent().getIntExtra("container_id", 0) : 0;
             String shortcutPath = activity.getIntent() != null
                     ? activity.getIntent().getStringExtra("shortcut_path") : null;
-            SessionTracker.get().onSessionActivityCreated(activity, containerId, shortcutPath);
+            SessionTracker.get().onSessionActivityCreated(activity, containerId, shortcutPath,
+                    com.p3win.core.session.LaunchConditions.describe(activity, containerId, shortcutPath));
+            lastGameActivity = new java.lang.ref.WeakReference<>(activity);
 
             // P3 Engine подключается к игре снаружи ядра: HUD + источник кадров.
             // Оба шага не критичны — при любой ошибке игра продолжает работать
@@ -179,9 +195,44 @@ public class P3Application extends Application {
         @Override
         public void onActivityDestroyed(Activity activity) {
             if (!isGameActivity(activity)) return;
+
+            // Сначала разбираем лог (файл ещё открыт и в нём есть хвост сбоя),
+            // затем закрываем сессию — так причина попадает в статистику.
+            // Пустой разбор — штатный выход, ничего не пишем.
+            java.io.File log = com.p3win.core.log.GameLogCapture.activeFile();
+            String reason = log != null ? com.p3win.core.log.GameLogCapture.diagnose(log) : "";
+            if (!reason.isEmpty()) {
+                SessionTracker.get().setPendingFailureReason(reason);
+                com.p3win.core.log.CrashGuard.noteNativeCrash(activity, reason);
+                com.p3win.core.prefs.P3Prefs.setPendingCrash(gameTitleOf(shortcutPathOf(activity)),
+                        log != null ? log.getAbsolutePath() : "");
+            }
+
             SessionTracker.get().onSessionActivityDestroyed(activity);
             com.p3win.core.engine.EngineBridge.detach();
             com.p3win.core.log.GameLogCapture.stop();
+            lastGameActivity = null;
+        }
+
+        /** Что запускалось — для заголовка экрана разбора сбоя. */
+        private static String gameTitleOf(String shortcutPath) {
+            if (shortcutPath == null || shortcutPath.isEmpty()) return "";
+            try {
+                com.p3win.data.P3Database db = com.p3win.data.P3Database.get();
+                if (db != null) {
+                    com.p3win.data.entity.Game game =
+                            db.gameDao().findByShortcut(new java.io.File(shortcutPath).getName());
+                    if (game != null) return game.title;
+                }
+                return shortcutFileName(shortcutPath);
+            } catch (Throwable t) {
+                return "";
+            }
+        }
+
+        private static String shortcutPathOf(Activity activity) {
+            return activity.getIntent() != null
+                    ? activity.getIntent().getStringExtra("shortcut_path") : null;
         }
 
         /** Имя ярлыка без расширения — им помечается лог игры. */

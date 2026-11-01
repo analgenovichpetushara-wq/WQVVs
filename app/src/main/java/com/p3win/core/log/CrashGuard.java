@@ -140,6 +140,36 @@ public final class CrashGuard implements Thread.UncaughtExceptionHandler {
         }
     }
 
+    /**
+     * Учесть <b>нативный</b> сбой игры.
+     *
+     * <p>Java-исключения сюда не попадают: Wine/Box64 падают в нативном коде,
+     * и для Android это просто «процесс умер». Единственный признак — хвост
+     * stderr, который разбирает {@link GameLogCapture}. Считаем такие сбои
+     * вместе с Java-падениями: пользователю всё равно, где именно упало,
+     * важно, что после трёх подряд приложение должно запуститься в
+     * безопасном режиме.
+     */
+    public static void noteNativeCrash(Context context, String reason) {
+        if (context == null) return;
+        AppPaths paths = AppPaths.of(context.getApplicationContext());
+
+        String stamp = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
+        File crashFile = new File(paths.getLogsDir(), "native-" + stamp + ".log");
+
+        String text = "P3WIN native crash report " + new Date() + "\n"
+                + "device   : " + Build.MANUFACTURER + " " + Build.MODEL + "\n"
+                + "abi      : " + joinAbis() + "\n"
+                + "reason   : " + (reason != null && !reason.isEmpty() ? reason : "не определена") + "\n";
+        try (java.io.FileWriter writer = new java.io.FileWriter(crashFile, true)) {
+            writer.write(text);
+        } catch (Exception ignored) {
+        }
+
+        P3Log.warn(TAG, "Нативный сбой: " + (reason != null && !reason.isEmpty() ? reason : "не определена"));
+        trackBurst(paths, text + "\n" + (reason != null ? reason : ""));
+    }
+
     public static boolean isDebuggable(Context context) {
         return (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
     }

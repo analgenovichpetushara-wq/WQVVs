@@ -1,19 +1,14 @@
 package com.p3win.ui.shell;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.winlator.R;
-
 import com.p3win.core.log.GameLogCapture;
 import com.p3win.core.log.P3Log;
+import com.p3win.core.prefs.P3Prefs;
+import com.winlator.R;
 
 import java.io.File;
 
@@ -31,99 +26,85 @@ import java.io.File;
  * сменить драйвер, снизить разрешение, включить профиль совместимости.
  * Это разница между «что-то сломалось» и «вот что сделать».
  */
-public class CrashReportFragment extends P3Fragment {
+public class CrashReportFragment extends P3ModuleFragment {
 
     private static final String ARG_GAME = "game";
     private static final String ARG_LOG = "log";
 
-    public static CrashReportFragment create(String gameTitle, File logFile) {
+    public static CrashReportFragment create(String gameTitle, String logPath) {
         CrashReportFragment fragment = new CrashReportFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_GAME, gameTitle);
-        args.putString(ARG_LOG, logFile != null ? logFile.getAbsolutePath() : "");
+        android.os.Bundle args = new android.os.Bundle();
+        args.putString(ARG_GAME, gameTitle != null ? gameTitle : "");
+        args.putString(ARG_LOG, logPath != null ? logPath : "");
         fragment.setArguments(args);
         return fragment;
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        LinearLayout root = new LinearLayout(getContext());
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(getResources().getColor(com.winlator.R.color.p3_bg));
-        int pad = dp(20);
-        root.setPadding(pad, pad, pad, pad);
+    protected int titleRes() {
+        return R.string.p3_crash_title;
+    }
 
+    @Override
+    protected void buildBody(LinearLayout body) {
         String game = getArguments() != null ? getArguments().getString(ARG_GAME, "") : "";
         String logPath = getArguments() != null ? getArguments().getString(ARG_LOG, "") : "";
         File log = logPath.isEmpty() ? null : new File(logPath);
 
-        TextView title = new TextView(getContext());
-        title.setText("Игра закрылась");
-        title.setTextSize(22f);
-        title.setTypeface(null, android.graphics.Typeface.BOLD);
-        title.setTextColor(getResources().getColor(com.winlator.R.color.p3_text));
-        root.addView(title);
-
-        TextView subtitle = new TextView(getContext());
-        subtitle.setText(game);
-        subtitle.setTextSize(13f);
-        subtitle.setTextColor(getResources().getColor(com.winlator.R.color.p3_text_tertiary));
-        subtitle.setPadding(0, dp(2), 0, dp(18));
-        root.addView(subtitle);
+        if (!game.isEmpty()) body.addView(paragraph(game));
 
         String diagnosis = log != null ? GameLogCapture.diagnose(log) : "";
         if (diagnosis.isEmpty()) {
-            diagnosis = "В логе нет характерных признаков сбоя. Если игра закрывается "
-                    + "сразу при запуске — попробуйте профиль «Compatibility» и разрешение 1280x720.";
+            diagnosis = getString(R.string.p3_crash_unknown);
         }
-        root.addView(section("Вероятная причина"));
-        root.addView(paragraph(diagnosis));
+
+        body.addView(section(getString(R.string.p3_crash_cause)));
+        body.addView(paragraph(diagnosis));
+
+        // Первый шаг восстановления предлагаем сразу: пользователь уже видел
+        // падение и вряд ли пойдёт искать переключатель сам.
+        body.addView(section(getString(R.string.p3_crash_recovery)));
+        body.addView(paragraph(getString(R.string.p3_crash_recovery_hint)));
+        body.addView(actionRow(getString(R.string.p3_crash_open_gpu), () ->
+                P3Navigator.push(requireActivity(), new com.p3win.ui.gpu.GpuManagerFragment())));
+        body.addView(actionRow(getString(R.string.p3_crash_open_diagnostics), () ->
+                P3Navigator.push(requireActivity(), new com.p3win.ui.control.DiagnosticsFragment())));
 
         if (log != null && log.isFile()) {
-            root.addView(section("Последние строки"));
-            root.addView(paragraph(P3Log.tail(log, 25)));
+            body.addView(section(getString(R.string.p3_crash_log)));
+            body.addView(paragraph(P3Log.tail(log, 25)));
         }
 
-        TextView close = new TextView(getContext());
-        close.setText("Вернуться в библиотеку");
-        close.setTextSize(14f);
-        close.setTypeface(null, android.graphics.Typeface.BOLD);
-        close.setTextColor(getResources().getColor(com.winlator.R.color.p3_bg));
-        close.setBackgroundResource(com.winlator.R.drawable.p3_button_primary);
-        close.setPadding(dp(20), dp(14), dp(20), dp(14));
-        close.setOnClickListener(v -> {
-            if (getActivity() != null) getActivity().getSupportFragmentManager().popBackStack();
-        });
-        root.addView(close);
-
-        android.widget.ScrollView scroll = new android.widget.ScrollView(getContext());
-        scroll.addView(root);
-        return scroll;
+        TextView back = new TextView(requireContext());
+        back.setText(R.string.p3_crash_back);
+        back.setTextSize(14f);
+        back.setTypeface(null, android.graphics.Typeface.BOLD);
+        back.setGravity(Gravity.CENTER);
+        back.setTextColor(getResources().getColor(R.color.p3_bg));
+        back.setBackgroundResource(R.drawable.p3_button_primary);
+        back.setPadding(dp(20), dp(14), dp(20), dp(14));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.topMargin = dp(20);
+        back.setLayoutParams(params);
+        back.setOnClickListener(v -> P3Navigator.resetToShell(requireActivity()));
+        body.addView(back);
     }
 
-    private TextView section(String text) {
-        TextView view = new TextView(getContext());
-        view.setText(text.toUpperCase());
-        view.setTextSize(10f);
-        view.setLetterSpacing(0.14f);
-        view.setTextColor(getResources().getColor(com.winlator.R.color.p3_text_tertiary));
-        view.setPadding(0, dp(14), 0, dp(6));
-        return view;
-    }
-
-    private TextView paragraph(String text) {
-        TextView view = new TextView(getContext());
+    /** Строка-действие в стиле карточки. */
+    private View actionRow(String text, Runnable action) {
+        TextView view = new TextView(requireContext());
         view.setText(text);
         view.setTextSize(13f);
-        view.setTextColor(getResources().getColor(com.winlator.R.color.p3_text_secondary));
-        view.setTextIsSelectable(true);
-        view.setLineSpacing(dp(3), 1f);
+        view.setTypeface(null, android.graphics.Typeface.BOLD);
+        view.setTextColor(getResources().getColor(R.color.p3_accent));
+        view.setBackgroundResource(R.drawable.p3_card_background);
+        view.setPadding(dp(16), dp(14), dp(16), dp(14));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.bottomMargin = dp(8);
+        view.setLayoutParams(params);
+        view.setOnClickListener(v -> action.run());
         return view;
-    }
-
-    private int dp(int value) {
-        return (int) (value * getResources().getDisplayMetrics().density);
     }
 }

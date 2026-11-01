@@ -153,6 +153,26 @@ public final class P3Log {
         return result.toString();
     }
 
+    /**
+     * Самый свежий лог игры — для экрана разбора сбоя.
+     *
+     * <p>Файлы называются {@code game-<ключ>.log}, поэтому вместо разбора
+     * поколений выбираем по времени изменения: сессия, которая только что
+     * упала, и есть самая свежая.
+     */
+    public static File lastGameLog() {
+        File dir = paths != null ? paths.getLogsDir() : null;
+        if (dir == null) return null;
+        File[] files = dir.listFiles((d, name) -> name.startsWith("game-") && name.endsWith(".log"));
+        if (files == null || files.length == 0) return null;
+
+        File newest = null;
+        for (File file : files) {
+            if (newest == null || file.lastModified() > newest.lastModified()) newest = file;
+        }
+        return newest;
+    }
+
     public static File[] listLogs() {
         if (paths == null) return new File[0];
         File[] files = paths.getLogsDir().listFiles();

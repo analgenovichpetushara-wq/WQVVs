@@ -23,6 +23,7 @@ public final class GameCardMenuDialog {
         final String[] items = {
                 context.getString(R.string.p3_library_favorites),
                 context.getString(R.string.p3_library_profile),
+                context.getString(R.string.p3_library_stats),
                 context.getString(R.string.p3_library_remove)
         };
 
@@ -37,6 +38,9 @@ public final class GameCardMenuDialog {
                             new GameProfileDialog(context, game, onChanged).show();
                             break;
                         case 2:
+                            openStats(context, game);
+                            break;
+                        case 3:
                             confirmRemove(context, game, onChanged);
                             break;
                         default:
@@ -45,6 +49,20 @@ public final class GameCardMenuDialog {
                 })
                 .setNegativeButton(R.string.p3_cancel, (d, w) -> d.dismiss())
                 .show();
+    }
+
+    /** Статистика сессий: время, число запусков, причины падений. */
+    private static void openStats(Context context, Game game) {
+        if (!(context instanceof androidx.fragment.app.FragmentActivity)) {
+            // Диалог вызван из Activity без support-fragment-manager — открываем
+            // статистику отдельным экраном оболочки не получится, поэтому честно
+            // сообщаем, а не падаем.
+            P3Toast.show(context, context.getString(R.string.p3_library_stats));
+            return;
+        }
+        com.p3win.ui.shell.P3Navigator.push(
+                (androidx.fragment.app.FragmentActivity) context,
+                GameStatsFragment.create(game.id));
     }
 
     private static void toggleFavorite(Context context, Game game, Runnable onChanged) {
